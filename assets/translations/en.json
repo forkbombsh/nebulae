@@ -1,0 +1,32 @@
+{
+    "language": "English",
+    "short": "en",
+    "menu": {
+        "createProjectButton": "Create project",
+        "loadProjectLabel": "Or, load project"
+    },
+    "projectCreation": {
+        "projectNameLabel": "Project Name:",
+        "createProjectButton": "Create project",
+        "cancelProjectButton": "Cancel",
+        "projectWidthLabel": "Project Width:",
+        "projectHeightLabel": "Project Height:",
+        "projectFramerateLabel": "Framerate",
+        "projectAlreadyExists": "Project already exists."
+    },
+    "renderInfo": {
+        "renderInfoLabel": "Rendering",
+        "renderInfoDot": ".",
+        "renderInfoBackButton": "Cancel"
+    },
+    "creator": {
+        "projectTab": {
+            "name": "Project",
+            "renderButton": "Render",
+            "unloadButton": "Unload"
+        },
+        "playButton": "Play",
+        "pauseButton": "Pause"
+    },
+    "title": "Nebulae"
+}

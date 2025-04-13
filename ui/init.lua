@@ -1,0 +1,164 @@
+local ui = {
+    lineStyles = {
+        rough = "rough",
+        smooth = "smooth"
+    },
+    kFocusNum = 0,
+    restartTextbox = false
+}
+local kFocusNumOld = 0
+local elements = {}
+local shared = require("ui.shared")
+shared.ui = ui
+shared.elements = elements
+
+local wasJustRestartedTextbox = false
+
+local types = {}
+
+function ui.new(etype, args)
+    if type(args) ~= "table" then
+        args = {}
+    end
+    local elementType = types[etype]
+    if not elementType then
+        error("Invalid element type: " .. tostring(etype))
+    end
+    local element = elementType:new(args)
+    element.id = shared.getUniqueID()
+    element.z = args.z or 0 -- Default z-order value
+    return element
+end
+
+function ui.add(element)
+    local id = element.id
+    elements[id] = element
+    if type(element.elements) == "table" then
+        for _, child in pairs(element.elements) do
+            if not ui.getElement(child.id) then
+                ui.add(child)
+            end
+        end
+    end
+    if type(element.addables) == "table" then
+        for _, child in pairs(element.addables) do
+            if not ui.getElement(child.id) then
+                ui.add(child)
+            end
+        end
+    end
+    if element.onAdded then
+        element:onAdded()
+    end
+    return element
+end
+
+function ui.addNew(etype, args)
+    return ui.add(ui.new(etype, args))
+end
+
+function ui.getElement(id)
+    return elements[id]
+end
+
+function ui.remove(element)
+    if type(element.elements) == "table" then
+        for _, child in pairs(element.elements) do
+            ui.remove(child)
+        end
+    end
+    if type(element.addables) == "table" then
+        for _, child in pairs(element.addables) do
+            ui.remove(child)
+        end
+    end
+    if element.onRemoved then
+        element:onRemoved()
+    end
+    elements[element.id] = nil
+end
+
+function ui.removeAll()
+    for id, element in pairs(elements) do
+        ui.remove(element)
+    end
+end
+
+function ui.sendEvent(name, ...)
+    for id, element in pairs(elements) do
+        local func = element[name]
+        if not element.disabled and type(func) == "function" then
+            func(...)
+        end
+    end
+end
+
+function ui.sendEventSelf(name, ...)
+    for id, element in pairs(elements) do
+        local func = element[name]
+        if not element.disabled and type(func) == "function" then
+            func(element, ...)
+        end
+    end
+end
+
+function ui.update(dt)
+    ui.sendEventSelf("update", dt)
+    ui.keyboardFocused = ui.kFocusNum > 0
+    if kFocusNumOld ~= ui.kFocusNum then
+        kFocusNumOld = ui.kFocusNum
+        if ui.kFocusNum > 0 then
+            love.keyboard.setTextInput(true)
+        else
+            love.keyboard.setTextInput(false)
+        end
+    end
+    if wasJustRestartedTextbox then
+        wasJustRestartedTextbox = false
+        love.keyboard.setTextInput(true)
+    end
+    if ui.restartTextbox then
+        wasJustRestartedTextbox = true
+        love.keyboard.setTextInput(false)
+    end
+end
+
+function ui.draw()
+    -- Sort elements by z-order before drawing
+    local sortedElements = {}
+    for _, element in pairs(elements) do
+        table.insert(sortedElements, element)
+    end
+    table.sort(sortedElements, function(a, b) return a.z < b.z end)
+
+    for _, element in ipairs(sortedElements) do
+        local func = element["draw"]
+        if type(func) == "function" and not element.parent and element.mainDraw then
+            func(element)
+        end
+    end
+end
+
+function ui.addElementType(name, element)
+    element.name = name
+    types[name] = element
+end
+
+function ui.removeElementType(name)
+    types[name] = nil
+end
+
+function ui.getTypes()
+    return types
+end
+
+ui.addElementType("element", require("ui.element"))
+ui.addElementType("panel", require("ui.panel"))
+ui.addElementType("button", require("ui.button"))
+ui.addElementType("label", require("ui.label"))
+ui.addElementType("closeablePanel", require("ui.closeablePanel"))
+ui.addElementType("menubar", require("ui.menubar"))
+ui.addElementType("dropdown", require("ui.dropdown"))
+ui.addElementType("textbox", require("ui.textbox"))
+
+return ui
