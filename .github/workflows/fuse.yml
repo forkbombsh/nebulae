@@ -54,29 +54,43 @@ jobs:
           curl -L -o love12.AppImage https://coolestperson.me/public/love-12.0-x86_64.AppImage
           chmod +x love12.AppImage
           ./love12.AppImage --appimage-extract
-          mv squashfs-root Nebulae.AppDir
+          mv squashfs-root love12-extracted
 
       - name: create love archive
-        run: |
-          zip -r game.love *.lua src ui lib config
+        run: zip -r game.love *.lua src ui lib config
 
-      - name: place game in AppDir
+      - name: setup Nebulae.AppDir
         run: |
-          cp game.love Nebulae.AppDir/
+          mkdir -p Nebulae.AppDir/usr/bin
+          cp love12-extracted/usr/bin/love Nebulae.AppDir/usr/bin/
+          cp game.love Nebulae.AppDir/usr/bin/
+          echo -e '#!/bin/bash\nexec "$(dirname "$0")/love" "$(dirname "$0")/game.love" "$@"' > Nebulae.AppDir/AppRun
+          chmod +x Nebulae.AppDir/AppRun
+          cp love12-extracted/love.svg Nebulae.AppDir/
+          cat > Nebulae.AppDir/Nebulae.desktop <<EOF
+          [Desktop Entry]
+          Name=Nebulae
+          Exec=Nebulae
+          Icon=love
+          Type=Application
+          Categories=Game;
+          EOF
 
-      - name: download portable appimagetool
+      - name: download linuxdeploy
         run: |
-          curl -L -o appimagetool.tar.gz https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage.tar.gz
-          tar -xzf appimagetool.tar.gz
-          chmod +x appimagetool    
+          curl -L -o linuxdeploy.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          chmod +x linuxdeploy.AppImage
+          ./linuxdeploy.AppImage --appimage-extract
+          mv squashfs-root/usr/bin/linuxdeploy .
 
       - name: build AppImage
         run: |
+          ./linuxdeploy --appdir Nebulae.AppDir --output appimage
           mkdir -p build/linux
-          ./appimagetool Nebulae.AppDir build/linux/Nebulae.AppImage
+          mv Nebulae-x86_64.AppImage build/linux/Nebulae.AppImage
 
       - name: upload artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v3
         with:
           name: Nebulae-Linux-x64
-          path: build/
+          path: build/linux/
