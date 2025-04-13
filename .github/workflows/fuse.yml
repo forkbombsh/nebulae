@@ -7,29 +7,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  fuse:
+  fuse-windows:
     runs-on: ubuntu-22.04
+    name: Build for Windows
 
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
 
-      - name: download love 12.0
-        run: |
-          curl -L -o love-win64.zip https://coolestperson.me/public/love-12.0-win64.zip
+      - name: download love 12.0 for Windows
+        run: curl -L -o love-win64.zip https://coolestperson.me/public/love-12.0-win64.zip
 
-      - name: unzip love 12.0
-        run: |
-          unzip love-win64.zip -d love12
+      - name: unzip love
+        run: unzip love-win64.zip -d love12
 
       - name: create love archive
-        run: |
-          zip -r game.love *.lua src ui lib config
+        run: zip -r game.love *.lua src ui lib config
 
-      - name: fuse love file to exe
+      - name: fuse Nebulae.exe
         run: |
           mkdir build
-          cat love12/love.exe game.love > build/Nebulae.exe  # Fuse Nebulae.exe with game.love
+          cat love12/love.exe game.love > build/Nebulae.exe
 
       - name: copy dlls and folders
         run: |
@@ -37,8 +35,39 @@ jobs:
           cp -r assets build/
           cp -r plugins build/
 
+      - name: upload artifact (Windows)
+        uses: actions/upload-artifact@main
+        with:
+          name: Nebulae-Windows-x64
+          path: build/
+
+  fuse-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: download love 12.0 AppImage
+        run: |
+          curl -L -o love12.AppImage https://coolestperson.me/public/love-12.0-x86_64.AppImage
+          chmod +x love12.AppImage
+
+      - name: create love archive
+        run: |
+          zip -r game.love *.lua src ui lib config
+
+      - name: fuse love file to Linux AppImage
+        run: |
+          mkdir -p build/linux
+          ./love12.AppImage --appimage-extract
+          mv squashfs-root love12-extracted
+          cp game.love love12-extracted/
+          mv love12-extracted build/linux/Nebulae.AppDir
+          ./love12.AppImage --appimage-tool build/linux/Nebulae.AppDir build/linux/Nebulae.AppImage
+
       - name: upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: Nebulae
+          name: Nebulae-Linux-x64
           path: build/

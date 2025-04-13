@@ -77,21 +77,23 @@ local function handleUI(w, h)
         onRelease = function()
             love.window.showFileDialog("openfile", function(fileTable)
                 local filepath = fileTable[1]
-                local success = love.filesystem.mountFullPath(filepath, "tempProjectPath", "read", false)
-                if success then
-                    local filename = filepath:match("([^/\\]+)%.%w+$")
-                    if love.filesystem.exists("tempProjectPath/metadata.json") and love.filesystem.exists("tempProjectPath/layers.json") then
-                        copyFolderNativeFS("tempProjectPath", "projects/" .. filename)
+                if filepath then
+                    local success = love.filesystem.mountFullPath(filepath, "tempProjectPath", "read", false)
+                    if success then
+                        local filename = filepath:match("([^/\\]+)%.%w+$")
+                        if love.filesystem.exists("tempProjectPath/metadata.json") and love.filesystem.exists("tempProjectPath/layers.json") then
+                            copyFolderNativeFS("tempProjectPath", "projects/" .. filename)
+                        end
+                        love.filesystem.unmountFullPath(filepath)
+                        handleUI(love.graphics.getDimensions())
                     end
-                    love.filesystem.unmountFullPath(filepath)
-                    handleUI(love.graphics.getDimensions())
                 end
             end, {
                 title = GetTranslation("importNebFileDialog", "title"),
                 attachtowindow = true,
                 acceptlabel = GetTranslation("importNebFileDialog", "acceptlabel"),
                 cancellabel = GetTranslation("importNebFileDialog", "cancellabel"),
-                -- filters = { "neb" }
+                filters = { ".neb" }
             })
         end
     })
