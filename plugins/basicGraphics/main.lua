@@ -110,7 +110,6 @@ function basic:init(project)
         end,
         draw = function(obj)
             love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
-            -- love.graphics.print(obj.text, obj.x, obj.y)
             obj.textObject:draw()
         end,
         update = function(obj)
