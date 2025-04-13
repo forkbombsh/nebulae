@@ -43,6 +43,7 @@ jobs:
 
   fuse-linux:
     runs-on: ubuntu-22.04
+    name: Build for Linux
 
     steps:
       - name: checkout repo
@@ -52,19 +53,26 @@ jobs:
         run: |
           curl -L -o love12.AppImage https://coolestperson.me/public/love-12.0-x86_64.AppImage
           chmod +x love12.AppImage
+          ./love12.AppImage --appimage-extract
+          mv squashfs-root Nebulae.AppDir
 
       - name: create love archive
         run: |
           zip -r game.love *.lua src ui lib config
 
-      - name: fuse love file to Linux AppImage
+      - name: place game in AppDir
+        run: |
+          cp game.love Nebulae.AppDir/
+
+      - name: download appimagetool
+        run: |
+          curl -L -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+
+      - name: build AppImage
         run: |
           mkdir -p build/linux
-          ./love12.AppImage --appimage-extract
-          mv squashfs-root love12-extracted
-          cp game.love love12-extracted/
-          mv love12-extracted build/linux/Nebulae.AppDir
-          ./love12.AppImage --appimage-tool build/linux/Nebulae.AppDir build/linux/Nebulae.AppImage
+          ./appimagetool Nebulae.AppDir build/linux/Nebulae.AppImage
 
       - name: upload artifact
         uses: actions/upload-artifact@main
