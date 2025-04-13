@@ -1,4 +1,4 @@
-name: Fuse Love2D 12.0 Game Automatically
+name: fuse nebulae
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   fuse:
-    runs-on: ubuntu-latest  # more stable than ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: checkout repo
@@ -43,7 +43,7 @@ jobs:
           zip -r ../fused-game.zip .
 
       - name: upload artifact
-        uses: actions/upload-artifact@a163379d7c6ec6b0adf1a1a2d29f2190f2e7ecaf
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: fused-windows-game
           path: fused-game.zip
