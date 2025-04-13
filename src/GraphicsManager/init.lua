@@ -4,15 +4,15 @@ require("src.GraphicsManager.Camera")
 require("src.GraphicsManager.Effect")
 GraphicsManager = Class("GraphicsManager")
 
-function GraphicsManager:initialize(width, height, fps, project, player)
+function GraphicsManager:initialize(width, height, fps, project)
     print("init graphics manager")
     width = width or 1280
     height = height or 720
     fps = fps or 60
     self.canvas = love.graphics.newCanvas(width, height)
-    self.camera = Camera(project.camera, self)
+    self.camera = Camera(project.camera, project)
     self.project = project
-    self.player = player
+    self.player = project.player
     self.fps = fps
     self.width = width
     self.height = height
@@ -65,11 +65,13 @@ function GraphicsManager:updateLayer(layer, dt)
 end
 
 function GraphicsManager:drawLayers()
+    self.camera:push()
     for _, layer in ipairs(self.layers) do
         layer.camera:push()
         self:drawLayer(layer)
         layer.camera:pop()
     end
+    self.camera:pop()
 end
 
 function GraphicsManager:canvasifyObject(object)
@@ -86,7 +88,8 @@ function GraphicsManager:draw()
     love.graphics.setColor(self.backgroundColor)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     local r, g, b, a = love.graphics.getColor()
-    self:drawLayers()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.canvas, 0, 0)
     love.graphics.setColor(r, g, b, a)
 end
 
@@ -104,4 +107,8 @@ function GraphicsManager:update(dt)
     for _, layer in ipairs(self.layers) do
         self:updateLayer(layer, dt)
     end
+    love.graphics.setCanvas(self.canvas)
+    love.graphics.clear()
+    self:drawLayers()
+    love.graphics.setCanvas()
 end

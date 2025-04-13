@@ -59,23 +59,24 @@ function LoadTranslations()
 end
 
 function GetTranslation(...)
-    print("GetTranslation", ...)
     local args = { ... }
     local translation = Translations[Language]
 
-    for i = 1, #args - 1 do
+    -- Go through the path
+    for i = 1, #args do
         if translation and type(translation) == "table" then
             translation = translation[args[i]]
         else
-            return table.concat(args, ".")
+            break
         end
     end
 
-    local lastKey = args[#args]
-    if translation and type(translation[lastKey]) == "string" then
-        return string.format(translation[lastKey])
+    -- If we found a string, return it
+    if type(translation) == "string" then
+        return translation
     end
 
+    -- Otherwise, fallback to a joined path as a string
     return table.concat(args, ".")
 end
 

@@ -13,8 +13,6 @@ local state = {
     deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
 }
 
-local texts = {}
-
 local function copyFolderNativeFS(src, dest)
     -- Create destination directory if it doesn't exist
     if not love.filesystem.getInfo(dest) then
@@ -44,7 +42,6 @@ end
 local function handleUI(w, h)
     love.graphics.setBackgroundColor(state.menuUIBackgroundColor)
     UI.removeAll()
-    texts = {}
 
     state.createProjectButton = nil
     state.loadProjectLabel = nil
@@ -103,14 +100,15 @@ local function handleUI(w, h)
     local projectList = Project:getProjectList()
 
     if #projectList > 0 then
+        local text = GetTranslation("menu", "projectsLabel")
         local loadProjectLabel = UI.addNew("label", {
             x = 50,
             y = 200,
-            width = w - 100,
+            width = MedBigFontArial:getWidth(text),
             height = 50,
             font = MedBigFontArial,
             backgroundColor = { 0, 0, 0, 0 },
-            text = GetTranslation("menu", "loadProjectLabel"),
+            text = text,
             borderRadius = 8
         })
         state.loadProjectLabel = loadProjectLabel
@@ -161,9 +159,6 @@ function state:draw()
         self.currentProject.graphicsManager:draw()
     end
     UI.draw()
-    for i, v in ipairs(texts) do
-        v:draw()
-    end
 end
 
 function state:update(dt)

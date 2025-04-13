@@ -4,6 +4,9 @@ local state = {
     menuUIButtonBackgroundPressedColor = { 0.4, 0.4, 0.4 },
     menuUITextboxBackgroundColor = { 0.2, 0.2, 0.2 },
     menuUIBackgroundColor = { 0.1, 0.1, 0.1 },
+    deleteButtonBackgroundColor = { 1, 0.2, 0.2 },
+    deleteButtonBackgroundHoveredColor = { 1, 0.3, 0.3 },
+    deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
 }
 
 local function handleUI(w, h)
@@ -11,26 +14,44 @@ local function handleUI(w, h)
     UI.removeAll()
     texts = {}
 
-    local deleteButton = UI.addNew("button", {
+    local cancelButton = UI.addNew("button", {
         x = 50,
-        y = 50,
-        width = w - 100,
-        height = 50,
+        y = 350,
+        width = (w / 2) - 60,
+        height = 40,
         backgroundColor = state.menuUIButtonBackgroundColor,
         backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
         backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
+        text = GetTranslation("projectDeletion", "cancelButton"),
+        borderRadius = 8,
+        font = MedBigFontArial,
+        onRelease = function()
+            StateManager.switch("menu")
+        end
+    })
+
+    local deleteButton = UI.addNew("button", {
+        x = (w / 2) + 10,
+        y = 350,
+        width = (w / 2) - 60,
+        height = 40,
+        backgroundColor = state.deleteButtonBackgroundColor,
+        backgroundColorHover = state.deleteButtonBackgroundHoveredColor,
+        backgroundColorPress = state.deleteButtonBackgroundPressedColor,
         text = GetTranslation("projectDeletion", "deleteButton"),
         borderRadius = 8,
         font = MedBigFontArial,
         onRelease = function()
             Project:deleteProject(state.folderName)
-            StateManager.switch("creator")
+            StateManager.switch("menu")
         end
     })
 
     if love.window.fromPixels(w) < 500 then
+        cancelButton.width = w - 100
         deleteButton.width = w - 100
         deleteButton.x = 50
+        deleteButton.y = cancelButton.y + cancelButton.height + 10
     end
 end
 
@@ -42,7 +63,7 @@ end
 
 function state:draw()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print(GetTranslation("projectDeletion", "deleteProjectWarning"):format(self.projectName), MedFontArial, 50, 50)
+    love.graphics.printf(GetTranslation("projectDeletion", "deleteProjectWarning"):format(self.projectName), BigFontArial, 0, 50, love.graphics.getWidth(), "center")
     UI.draw()
 end
 

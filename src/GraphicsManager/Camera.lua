@@ -17,7 +17,7 @@ function Camera:getDefault()
     return table.deepcopy(defaultCamera)
 end
 
-function Camera:initialize(obj, graphicsManager)
+function Camera:initialize(obj, project)
     if (type(obj) ~= "table") then
         obj = {}
     end
@@ -31,7 +31,10 @@ function Camera:initialize(obj, graphicsManager)
     self.stretchY = obj.stretchY or 1
     self.layerParallaxEffect = obj.layerParallaxEffect or false
     self.keyframes = obj.keyframes or {}
-    self.graphicsManager = graphicsManager
+    self.graphicsManager = project.graphicsManager
+    if type(self.keyframes) == "table" then
+        project:addKeyframes(self)
+    end
 end
 
 function Camera:push()

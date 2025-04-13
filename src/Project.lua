@@ -34,8 +34,20 @@ function Project:getProjectMetaFromDefault(name, width, height)
 end
 
 function Project:deleteProject(name)
-    print("Deleting project...")
-    NativeFS.remove("projects/" .. name)
+    local path = "projects/" .. name
+
+    if NativeFS.getInfo(path) then
+        print("It's a directory, removing contents first...")
+        for _, file in ipairs(NativeFS.getDirectoryItems(path)) do
+            local filePath = path .. "/" .. file
+            print("Deleting file: " .. filePath)
+            NativeFS.remove(filePath)
+        end
+        -- Try to delete the empty directory now
+        NativeFS.remove(path)
+    else
+        print("Project does not exist.")
+    end
 end
 
 function Project:createNewProject(project)
@@ -98,7 +110,7 @@ function Project:load(onFinish)
     self.audioManager = AudioManager(self)
     local audioManager = self.audioManager
 
-    self.graphicsManager = GraphicsManager(projectMeta.width, projectMeta.height, projectMeta.framerate, self, player)
+    self.graphicsManager = GraphicsManager(projectMeta.width, projectMeta.height, projectMeta.framerate, self)
     local graphicsManager = self.graphicsManager
 
     print("loading plugins...")
@@ -112,7 +124,7 @@ function Project:load(onFinish)
     local pdLayers = self:fetchProjectLayers(folderName)
 
     for layerIndex, pdLayer in ipairs(pdLayers) do
-        local layer = Layer(pdLayers[layerIndex], graphicsManager)
+        local layer = Layer(pdLayers[layerIndex], self)
         local deepCopiedObjects = table.deepcopy(pdLayer.objects)
         for _, pdObject in pairs(deepCopiedObjects) do
             local object = Object(pdObject, graphicsManager)

@@ -4,7 +4,7 @@
     "menu": {
         "createProjectButton": "Create project",
         "importProjectButton": "Import project",
-        "loadProjectLabel": "Or, load project",
+        "projectsLabel": "Projects:",
         "deleteProjectButton": "Delete"
     },
     "projectCreation": {

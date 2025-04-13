@@ -1,15 +1,15 @@
 Layer = Class("Layer")
 
-function Layer:initialize(obj, graphicsManager)
+function Layer:initialize(obj, project)
     if (type(obj) ~= "table") then
         obj = {}
     end
-    self.graphicsManager = graphicsManager
+    local graphicsManager = project.graphicsManager
     self.name = obj.name or "Layer %s"
     self.canvas = love.graphics.newCanvas(graphicsManager.width, graphicsManager.height)
     self.objects = {}
     self.sortedObjects = {}
-    self.camera = Camera(obj.camera, graphicsManager)
+    self.camera = Camera(obj.camera, project)
 end
 
 function Layer:addObject(object)
