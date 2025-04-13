@@ -188,12 +188,11 @@ function Project:unload()
 end
 
 function Project:update(dt)
-    if self.isLoaded then
-        self.player:update(dt)
-        self.keyframeManager:update(self.player.time)
-        self.graphicsManager:update(dt)
-        self.audioManager:update()
-    end
+    if not self.isLoaded then return end
+    self.player:update(dt)
+    self.keyframeManager:update(self.player.time)
+    self.graphicsManager:update(dt)
+    self.audioManager:update()
 end
 
 function Project:updateAll(dt)

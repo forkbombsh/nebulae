@@ -35,7 +35,6 @@ end
 function love.update(dt)
     dt = Renderer:update(dt)
     StateManager.passEvent("update", dt)
-    -- TextRender:updateAll(dt)
     Project:updateAll(dt)
 end
 

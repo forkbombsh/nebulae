@@ -144,7 +144,7 @@ function Renderer:update(dt)
                 love.graphics.printf("Finished", BigFontArial, 0, 0, love.graphics.getWidth(),
                     "center")
             end)
-            love.timer.sleep(0.5)
+            love.timer.sleep(0.25)
             if type(self.onFinish) == "function" then
                 self.onFinish()
             end

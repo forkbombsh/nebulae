@@ -1,3 +1,4 @@
+require("src.AudioManager.Sound")
 AudioManager = Class("AudioManager")
 
 local ffi = require("ffi")
@@ -90,18 +91,7 @@ function AudioManager:loadSoundData(path)
     return self.soundDatas[path]
 end
 
-function AudioManager:newSound(obj, soundData)
-    obj.volume = obj.volume or 1
-    obj.looping = obj.looping or false
-    obj.pitch = obj.pitch or 1
-    obj.startTime = obj.startTime or 0
-    obj.endTime = obj.endTime or obj.startTime + 1
-    obj.audioTime = obj.audioTime or 0
-    obj.keyframes = obj.keyframes or {}
-    obj.soundData = soundData
-    obj.path = obj.file
-    return obj
-end
+
 
 function AudioManager:resampleSoundData(soundData, targetRate)
     local currentRate = soundData:getSampleRate()
@@ -200,55 +190,6 @@ function AudioManager:encodeWAV(samples, sampleRate, channels, bitsPerSample)
     return table.concat(out, "")
 end
 
--- function AudioManager:encodeFLAC(samples, sampleRate, channels, bitsPerSample)
---     local outputChunks = {}
---     local encoder = flac.FLAC__stream_encoder_new()
---     assert(encoder ~= nil, "Failed to create encoder")
-
---     -- Set encoder settings
---     assert(flac.FLAC__stream_encoder_set_channels(encoder, channels) ~= false)
---     assert(flac.FLAC__stream_encoder_set_bits_per_sample(encoder, bitsPerSample) ~= false)
---     assert(flac.FLAC__stream_encoder_set_sample_rate(encoder, sampleRate) ~= false)
---     assert(flac.FLAC__stream_encoder_set_compression_level(encoder, 5) ~= false)
-
---     -- C write callback
---     local write_cb_c
---     write_cb_c = ffi.cast("FLAC__StreamEncoderWriteCallback", function(_, buffer, bytes, _, _, client_data)
---         local str = ffi.string(buffer, bytes)
---         table.insert(outputChunks, str)
---         return 0 -- FLAC__STREAM_ENCODER_WRITE_STATUS_OK
---     end)
-
---     -- Init the encoder with the write callback
---     local init_status = flac.FLAC__stream_encoder_init_stream(
---         encoder,
---         write_cb_c,
---         nil, nil, nil,
---         nil
---     )
---     assert(init_status == 0, "FLAC init_stream failed")
-
---     -- Prepare PCM buffer (convert float samples to int32)
---     local totalSamples = #samples
---     local sampleCount = math.floor(totalSamples / channels)
---     local pcm = ffi.new("int32_t[?]", totalSamples)
---     for i = 1, totalSamples do
---         local sample = math.max(-1.0, math.min(1.0, samples[i]))
---         pcm[i - 1] = math.floor(sample * 32767)
---     end
-
---     -- Feed audio data
---     assert(flac.FLAC__stream_encoder_process_interleaved(encoder, pcm, sampleCount) ~= false)
-
---     -- Finalize encoding
---     flac.FLAC__stream_encoder_finish(encoder)
---     flac.FLAC__stream_encoder_delete(encoder)
-
---     write_cb_c:free() -- release the callback
-
---     return table.concat(outputChunks)
--- end
-
 function AudioManager:encodeSoundDataWav(soundData)
     local channels = soundData:getChannelCount()
     local sampleRate = soundData:getSampleRate()
@@ -265,23 +206,6 @@ function AudioManager:encodeSoundDataWav(soundData)
 
     return AudioManager:encodeWAV(samples, sampleRate, channels, bitsPerSample)
 end
-
--- function AudioManager:encodeSoundDataFLAC(soundData)
---     local channels = soundData:getChannelCount()
---     local sampleRate = soundData:getSampleRate()
---     local bitsPerSample = soundData:getBitDepth()
---     local samples = {}
-
---     for i = 0, soundData:getSampleCount() - 1 do
---         local sample = {}
---         for c = 1, channels do
---             sample[c] = soundData:getSample(i, c)
---         end
---         table.insert(samples, sample)
---     end
-
---     return AudioManager:encodeFLAC(samples, sampleRate, channels, bitsPerSample)
--- end
 
 function AudioManager:combineSoundDatas(soundDatas, maxEndTime)
     if #soundDatas == 0 then return nil end
@@ -354,13 +278,20 @@ function AudioManager:combineSoundDatas(soundDatas, maxEndTime)
 end
 
 function AudioManager:update()
-    if Renderer.isRendering then
-        return
-    end
-
     local player = self.player
     local time = player.time
     local isPlaying = player.isPlaying
+
+    -- get average sample of all currently playing sounds
+    for i = 1, #self.sounds do
+        local sound = self.sounds[i]
+
+        if time >= sound.startTime and time < sound.endTime then
+        end
+    end
+    if Renderer.isRendering then
+        return
+    end
 
     for i = 1, #self.sounds do
         local sound = self.sounds[i]

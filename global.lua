@@ -10,7 +10,7 @@ AppVersion = project.version
 
 NativeFS = require("lib.nativefs")
 assert(NativeFS.getInfo("assets"),
-"\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
+    "\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
 
 BigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 24)
 MedBigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 20)
@@ -274,5 +274,21 @@ end
 function EnsureDirectory(name)
     if not NativeFS.getInfo(name) then
         NativeFS.createDirectory(name)
+    end
+end
+
+function math.average(numTable, ...)
+    if type(numTable) == "number" then
+        return math.average({numTable, ...})
+    elseif type(numTable) == "table" then
+        local sum = 0
+        local count = 0
+        for _, v in ipairs(numTable) do
+            sum = sum + v
+            count = count + 1
+        end
+        return sum / count
+    else
+        error("Expected number or table, got " .. type(numTable))
     end
 end
