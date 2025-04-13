@@ -1,4 +1,4 @@
-name: fuse nebulae
+name: Fuse Love2D 12.0 Game Automatically
 
 on:
   push:
@@ -8,42 +8,42 @@ on:
 
 jobs:
   fuse:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # more stable than ubuntu-24.04
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: checkout repo
+        uses: actions/checkout
 
-      - name: Download LÖVE 12.0
+      - name: download love 12.0
         run: |
           curl -L -o love-win64.zip https://coolestperson.me/public/love-12.0-win64.zip
 
-      - name: Unzip LÖVE 12.0
+      - name: unzip love 12.0
         run: |
           unzip love-win64.zip -d love12
 
-      - name: Create .love archive
+      - name: create love archive
         run: |
           mkdir build
           zip -r build/game.love *.lua src ui lib config
 
-      - name: Fuse .love into EXE
+      - name: fuse love file to exe
         run: |
           cat love12/love.exe build/game.love > build/Nebulae.exe
 
-      - name: Copy DLLs and folders
+      - name: copy stuff and stuff
         run: |
           cp love12/*.dll build/
           cp -r assets build/
           cp -r plugins build/
 
-      - name: Zip final build
+      - name: zip thing
         run: |
           cd build
           zip -r ../fused-game.zip .
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3.1.3
+      - name: upload artifact
+        uses: actions/upload-artifact
         with:
           name: fused-windows-game
           path: fused-game.zip
