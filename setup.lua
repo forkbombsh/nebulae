@@ -130,5 +130,5 @@ end
 
 if love.filesystem.isFused() then
     local dir = love.filesystem.getSourceBaseDirectory()
-    local success = love.filesystem.mount(dir, "")
+    love.filesystem.mount(dir, "")
 end

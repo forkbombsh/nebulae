@@ -83,7 +83,13 @@ end
 function love.resize(w, h)
     UI.sendEventSelf("resize", w, h)
     StateManager.passEvent("resize", w, h)
-    -- rs.resize(w, h)
+end
+
+function love.quit()
+    if love.filesystem.isFused() then
+        local dir = love.filesystem.getSourceBaseDirectory()
+        love.filesystem.unmount(dir)
+    end
 end
 
 function love.run()
