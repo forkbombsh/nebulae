@@ -152,7 +152,9 @@ function Project:load(onFinish)
     for _, audio in ipairs(projectMeta.audio) do
         local audioPath = folder .. "/" .. audio.file
         local soundData = audioManager:loadSoundData(audioPath)
-        table.insert(soundDatas, audioManager:newSound(audio, soundData))
+        audio.soundData = soundData
+        local sound = Sound(audio)
+        table.insert(soundDatas, sound)
         audioManager:addRTSound(audio)
     end
     audioManager:loadingFinished()

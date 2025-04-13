@@ -1,54 +1,6 @@
 require("src.AudioManager.Sound")
 AudioManager = Class("AudioManager")
 
-local ffi = require("ffi")
-
--- ffi.cdef [[
--- typedef struct FLAC__StreamEncoder FLAC__StreamEncoder;
--- typedef enum {
---   FLAC__STREAM_ENCODER_OK = 0,
---   FLAC__STREAM_ENCODER_INIT_STATUS_OK = 0,
--- } FLAC__StreamEncoderInitStatus;
-
--- typedef size_t FLAC__byte;
--- typedef uint64_t FLAC__uint64;
-
--- typedef enum {
---   FLAC__STREAM_ENCODER_WRITE_STATUS_OK = 0,
---   FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR
--- } FLAC__StreamEncoderWriteStatus;
-
--- typedef FLAC__StreamEncoderWriteStatus (*FLAC__StreamEncoderWriteCallback)(
---     const FLAC__StreamEncoder *encoder,
---     const FLAC__byte buffer[],
---     size_t bytes,
---     unsigned samples,
---     unsigned current_frame,
---     void *client_data);
-
--- FLAC__StreamEncoder* FLAC__stream_encoder_new(void);
--- void FLAC__stream_encoder_delete(FLAC__StreamEncoder*);
-
--- bool FLAC__stream_encoder_set_channels(FLAC__StreamEncoder*, unsigned);
--- bool FLAC__stream_encoder_set_bits_per_sample(FLAC__StreamEncoder*, unsigned);
--- bool FLAC__stream_encoder_set_sample_rate(FLAC__StreamEncoder*, unsigned);
--- bool FLAC__stream_encoder_set_compression_level(FLAC__StreamEncoder*, unsigned);
-
--- FLAC__StreamEncoderInitStatus FLAC__stream_encoder_init_stream(
---   FLAC__StreamEncoder *,
---   FLAC__StreamEncoderWriteCallback write_callback,
---   void *seek_callback,
---   void *tell_callback,
---   void *metadata_callback,
---   void *client_data
--- );
-
--- bool FLAC__stream_encoder_process_interleaved(FLAC__StreamEncoder*, const int32_t buffer[], unsigned samples);
--- bool FLAC__stream_encoder_finish(FLAC__StreamEncoder*);
--- ]]
-
--- local flac = ffi.load("libFLAC")
-
 function AudioManager:initialize(project)
     print("init audio manager")
     self.soundDatas = {}
@@ -58,6 +10,7 @@ function AudioManager:initialize(project)
     self.player = self.project.player
     self.lastPlayedAudioID = 0
     self.lastFinishedAudioID = 0
+    self.averageSample = 0
 end
 
 function AudioManager:addRTSound(sound)
@@ -90,8 +43,6 @@ function AudioManager:loadSoundData(path)
     end
     return self.soundDatas[path]
 end
-
-
 
 function AudioManager:resampleSoundData(soundData, targetRate)
     local currentRate = soundData:getSampleRate()
@@ -282,13 +233,26 @@ function AudioManager:update()
     local time = player.time
     local isPlaying = player.isPlaying
 
+    self.averageSample = 0
+    local curPlayingCount = 0
+
     -- get average sample of all currently playing sounds
     for i = 1, #self.sounds do
         local sound = self.sounds[i]
 
-        if time >= sound.startTime and time < sound.endTime then
+        sound.shouldPlay = time >= sound.startTime and time < sound.endTime
+
+        if sound.shouldPlay then
+            local channelCount = sound.soundData:getChannelCount()
+            local bitsPerSample = sound.soundData:getBitDepth()
+            local sample = sound.soundData:getSample(sound.source:tell("samples"))
+            curPlayingCount = curPlayingCount + 1
+            self.averageSample = self.averageSample + sample
         end
     end
+
+    self.averageSample = self.averageSample / curPlayingCount
+
     if Renderer.isRendering then
         return
     end
