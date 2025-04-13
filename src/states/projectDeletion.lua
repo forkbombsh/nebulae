@@ -23,7 +23,7 @@ local function handleUI(w, h)
         borderRadius = 8,
         font = MedBigFontArial,
         onRelease = function()
-            Project:deleteProject(state.projectName)
+            Project:deleteProject(state.folderName)
             StateManager.switch("creator")
         end
     })
@@ -34,15 +34,15 @@ local function handleUI(w, h)
     end
 end
 
-function state:enter(projectName)
-    self.projectName = projectName
+function state:enter(folderName)
+    self.folderName = folderName
+    self.projectName = Project:fetchProjectMeta(folderName).name
     handleUI(love.graphics.getDimensions())
 end
 
 function state:draw()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.print(GetTranslation("projectDeletion", "deleteProjectLabel"), MedFontArial, 50, 80)
-    love.graphics.print(("(%s)"):format(self.projectName), MedFontArial, 50, 100)
+    love.graphics.print(GetTranslation("projectDeletion", "deleteProjectWarning"):format(self.projectName), MedFontArial, 50, 50)
     UI.draw()
 end
 

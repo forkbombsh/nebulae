@@ -141,7 +141,7 @@ local function handleUI(w, h)
                 backgroundColor = state.deleteButtonBackgroundColor,
                 backgroundColorHover = state.deleteButtonBackgroundHoveredColor,
                 backgroundColorPress = state.deleteButtonBackgroundPressedColor,
-                text = proj.name or v,
+                text = GetTranslation("menu", "deleteProjectButton"),
                 borderRadius = 8,
                 onRelease = function()
                     StateManager.switch("projectDeletion", v)

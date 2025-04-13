@@ -4,7 +4,8 @@
     "menu": {
         "createProjectButton": "Create project",
         "importProjectButton": "Import project",
-        "loadProjectLabel": "Or, load project"
+        "loadProjectLabel": "Or, load project",
+        "deleteProjectButton": "Delete"
     },
     "projectCreation": {
         "projectNameLabel": "Project Name:",
@@ -33,6 +34,11 @@
         "title": "Import NEB file",
         "acceptlabel": "Import",
         "cancellabel": "Cancel"
+    },
+    "projectDeletion": {
+        "deleteButton": "Delete",
+        "cancelButton": "Cancel",
+        "deleteProjectWarning": "Are you sure you want to delete this project? (%s)"
     },
     "title": "Nebulae"
 }

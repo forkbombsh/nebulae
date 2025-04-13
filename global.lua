@@ -59,6 +59,7 @@ function LoadTranslations()
 end
 
 function GetTranslation(...)
+    print("GetTranslation", ...)
     local args = { ... }
     local translation = Translations[Language]
 
