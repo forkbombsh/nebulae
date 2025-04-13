@@ -54,6 +54,7 @@ jobs:
           curl -L -o love12.AppImage https://coolestperson.me/public/love-12.0-x86_64.AppImage
           chmod +x love12.AppImage
           ./love12.AppImage --appimage-extract
+          ls -R squashfs-root  # List the contents to check the extracted structure
           mv squashfs-root love12-extracted
 
       - name: create love archive
@@ -62,7 +63,9 @@ jobs:
       - name: setup Nebulae.AppDir
         run: |
           mkdir -p Nebulae.AppDir/usr/bin
-          cp love12-extracted/usr/bin/love Nebulae.AppDir/usr/bin/
+          # Check where the love binary is actually located
+          find love12-extracted -name "love"  # This will help us locate the "love" binary
+          cp love12-extracted/usr/bin/love Nebulae.AppDir/usr/bin/ || cp love12-extracted/love Nebulae.AppDir/usr/bin/
           cp game.love Nebulae.AppDir/usr/bin/
           echo -e '#!/bin/bash\nexec "$(dirname "$0")/love" "$(dirname "$0")/game.love" "$@"' > Nebulae.AppDir/AppRun
           chmod +x Nebulae.AppDir/AppRun
