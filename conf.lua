@@ -1,6 +1,6 @@
 local socket = require("socket")
 print("Loading...")
-_G.StartLoadTimeStartTime=socket.gettime()
+_G.StartLoadTimeStartTime = socket.gettime()
 local project = require("config.project")
 
 function love.conf(t)
@@ -11,6 +11,8 @@ function love.conf(t)
     t.window.resizable = true
     t.window.vsync = true
     t.window.title = project.name .. " v" .. project.version
+    t.audio.mixwithsystem = false
+    t.window.msaa = 4
 
     -- Check if renderers are defined in the project and apply them
     if type(t.graphics) == "table" then

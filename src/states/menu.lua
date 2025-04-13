@@ -95,7 +95,8 @@ local function handleUI(w, h)
                 cancellabel = GetTranslation("importNebFileDialog", "cancellabel"),
                 filters = { [GetTranslation("importNebFileDialog", "projectFileName")] = "neb" }
             })
-        end
+        end,
+        disabled = Lmajor < 12
     })
     state.importProjectButton = importProjectButton
 

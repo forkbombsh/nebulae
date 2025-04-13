@@ -26,7 +26,7 @@ local function handleUI(w, h)
         borderRadius = 8,
         font = MedBigFontArial,
         onRelease = function()
-            StateManager.switch("menu")
+            StateManager.switch(state.stateAfter, unpack(state.args))
         end
     })
 
@@ -55,15 +55,18 @@ local function handleUI(w, h)
     end
 end
 
-function state:enter(folderName)
+function state:enter(folderName, stateAfter, ...)
     self.folderName = folderName
     self.projectName = Project:fetchProjectMeta(folderName).name
+    self.stateAfter = stateAfter
+    self.args = { ... }
     handleUI(love.graphics.getDimensions())
 end
 
 function state:draw()
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(GetTranslation("projectDeletion", "deleteProjectWarning"):format(self.projectName), BigFontArial, 0, 50, love.graphics.getWidth(), "center")
+    love.graphics.printf(GetTranslation("projectDeletion", "deleteProjectWarning"):format(self.projectName), BigFontArial,
+    0, 50, love.graphics.getWidth(), "center")
     UI.draw()
 end
 

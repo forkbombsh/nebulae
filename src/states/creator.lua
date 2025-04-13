@@ -8,6 +8,9 @@ local creator = {
     creatorUIButtonBackgroundPressedColor = { 0.4, 0.4, 0.4 },
     creatorUILabelBackgroundColor = { 0.2, 0.2, 0.2 },
     creatorUIBackgroundColor = { 0.1, 0.1, 0.1 },
+    deleteButtonBackgroundColor = { 1, 0.2, 0.2 },
+    deleteButtonBackgroundHoveredColor = { 1, 0.3, 0.3 },
+    deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
     menubarHeight = 20
 }
 
@@ -42,6 +45,12 @@ local function handleUI(w, h)
             text = GetTranslation("creator", "projectTab", "unloadButton"),
             func = function()
                 StateManager.switch("menu")
+            end
+        },
+        {
+            text = GetTranslation("creator", "projectTab", "deleteButton"),
+            func = function()
+                StateManager.switch("projectDeletion", creator.project.folderName, "creator", creator.project.folderName)
             end
         },
     }

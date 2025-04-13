@@ -108,6 +108,7 @@ function button:update(dt)
     self.textLabel.width = self.width
     self.textLabel.height = self.height
     self.textLabel.isInButton = self
+    self.textLabel.disabled = self.disabled
 end
 
 function button:mousemoved(x, y, dx, dy)

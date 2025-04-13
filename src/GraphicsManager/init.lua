@@ -4,12 +4,14 @@ require("src.GraphicsManager.Camera")
 require("src.GraphicsManager.Effect")
 GraphicsManager = Class("GraphicsManager")
 
-function GraphicsManager:initialize(width, height, fps, project)
+function GraphicsManager:initialize(width, height, fps, msaa, project)
     print("init graphics manager")
     width = width or 1280
     height = height or 720
     fps = fps or 60
-    self.canvas = love.graphics.newCanvas(width, height)
+    self.canvas = love.graphics.newCanvas(width, height, {
+        msaa = msaa
+    })
     self.camera = Camera(project.camera, project)
     self.project = project
     self.player = project.player

@@ -1,13 +1,16 @@
 local socket = require("socket")
 local project = require("config.project")
 
+Lmajor, Lminor, Lrevision, Lcodename = love.getVersion()
+
 IsMobile = love.system.getOS() == "Android" or love.system.getOS() == "iOS"
 
 AppName = project.name
 AppVersion = project.version
 
 NativeFS = require("lib.nativefs")
-assert(NativeFS.getInfo("assets"), "\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
+assert(NativeFS.getInfo("assets"),
+"\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
 
 BigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 24)
 MedBigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 20)

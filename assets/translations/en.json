@@ -25,7 +25,8 @@
         "projectTab": {
             "name": "Project",
             "renderButton": "Render",
-            "unloadButton": "Unload"
+            "unloadButton": "Unload",
+            "deleteButton": "Delete"
         },
         "playButton": "Play",
         "pauseButton": "Pause"
@@ -34,7 +35,7 @@
         "title": "Import NEB file",
         "acceptlabel": "Import",
         "cancellabel": "Cancel",
-        "projectFileName":"Nebulae project file"
+        "projectFileName": "Nebulae project file"
     },
     "projectDeletion": {
         "deleteButton": "Delete",

@@ -6,7 +6,14 @@ function Layer:initialize(obj, project)
     end
     local graphicsManager = project.graphicsManager
     self.name = obj.name or "Layer %s"
-    self.canvas = love.graphics.newCanvas(graphicsManager.width, graphicsManager.height)
+    if type(obj.msaa) ~= "number" then
+        self.msaa = 4
+    else
+        self.msaa = obj.msaa
+    end
+    self.canvas = love.graphics.newCanvas(graphicsManager.width, graphicsManager.height, {
+        msaa = self.msaa
+    })
     self.objects = {}
     self.sortedObjects = {}
     self.camera = Camera(obj.camera, project)

@@ -62,7 +62,7 @@ end
 
 -- Update function to tween based on current time
 function Tween:update(currentTime)
-    if not self.newObj or not self.oldObj then return end
+    if not self.newObj or not self.oldObj or not self.isGood then return end
     self.currentTime = currentTime
 
     local progress = math.min(math.max((currentTime - self.startTime) / (self.endTime - self.startTime), 0), 1)

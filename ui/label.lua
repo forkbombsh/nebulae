@@ -37,6 +37,11 @@ function label:draw()
     local textHeight = font:getHeight()
 
     love.graphics.setColor(self.textColor)
+    if self.disabled then
+        local rd2, gd2, bd2 = love.graphics.getColor()
+        rd2, gd2, bd2 = rd2 * 0.3, gd2 * 0.3, bd2 * 0.3
+        love.graphics.setColor(rd2, gd2, bd2)
+    end
     self:applyStencilMask(function()
         if self.wrapText then
             local width, wrappedText = font:getWrap(self.text, self.width)

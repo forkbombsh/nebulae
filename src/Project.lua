@@ -6,6 +6,7 @@ local defaultProject = {
     name = "Untitled",
     width = 1280,
     height = 720,
+    msaa = 4,
     scale = 1,
     duration = 100,
     creator = "",
@@ -81,9 +82,9 @@ end
 
 function Project:addKeyframes(obj)
     for _, keyframe in ipairs(obj.keyframes) do
-        Tween(obj, keyframe.values, keyframe.startTime, keyframe.endTime,
-            KeyframeManager.curves[keyframe.type] or keyframe.curve or KeyframeManager.curves.linear,
-            self.keyframeManager)
+        local tween = Tween(obj, keyframe.values, keyframe.startTime, keyframe.endTime,
+            KeyframeManager.curves[keyframe.type] or keyframe.curve or KeyframeManager.curves.linear)
+        self.keyframeManager:addTween(tween)
     end
 end
 
@@ -110,7 +111,13 @@ function Project:load(onFinish)
     self.audioManager = AudioManager(self)
     local audioManager = self.audioManager
 
-    self.graphicsManager = GraphicsManager(projectMeta.width, projectMeta.height, projectMeta.framerate, self)
+    local msaa = projectMeta.msaa
+
+    if type(msaa) ~= "number" then
+        msaa = 4
+    end
+
+    self.graphicsManager = GraphicsManager(projectMeta.width, projectMeta.height, projectMeta.framerate, msaa, self)
     local graphicsManager = self.graphicsManager
 
     print("loading plugins...")

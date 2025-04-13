@@ -89,17 +89,31 @@ function element:draw()
     self:baseDraw()
 end
 
+function element:drawStencilMask()
+    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.borderRadius)
+end
+
 function element:getStencilMask()
     return function()
-        love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.borderRadius)
+        self:drawStencilMask()
     end
 end
 
 function element:applyStencilMask(func)
-    love.graphics.stencil(self:getStencilMask(), "replace", 1)
-    love.graphics.setStencilTest("greater", 0)
-    func()
-    love.graphics.setStencilTest()
+    if Lmajor >= 12 then
+        love.graphics.setColorMask(false)
+        love.graphics.setStencilMode("draw", 1)
+        self:drawStencilMask()
+        love.graphics.setStencilMode("test", 1)
+        love.graphics.setColorMask(true)
+        func()
+        love.graphics.setStencilMode()
+    else
+        love.graphics.stencil(self:getStencilMask(), "replace", 1)
+        love.graphics.setStencilTest("greater", 0)
+        func()
+        love.graphics.setStencilTest()
+    end
 end
 
 -- Extend function to create subclasses
