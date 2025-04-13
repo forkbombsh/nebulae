@@ -24,26 +24,27 @@ jobs:
 
       - name: create love archive
         run: |
-          mkdir build
-          zip -r build/game.love *.lua src ui lib config
+          zip -r game.love *.lua src ui lib config
+        
 
       - name: fuse love file to exe
         run: |
-          cat love12/love.exe build/game.love > build/Nebulae.exe
-
+          mkdir build
+          cat love12/love.exe game.love > build/Nebulae.exe
+        
       - name: copy stuff and stuff
         run: |
           cp love12/*.dll build/
           cp -r assets build/
           cp -r plugins build/
-
+        
       - name: zip thing
         run: |
           cd build
           zip -r ../fused-game.zip .
-
+        
       - name: upload artifact
         uses: actions/upload-artifact@main
         with:
-          name: fused-windows-game
+          name: Nebulae
           path: fused-game.zip
