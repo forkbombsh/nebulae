@@ -65,7 +65,7 @@ jobs:
           mkdir -p Nebulae.AppDir/usr/bin
           mkdir -p Nebulae.AppDir/usr/lib  # Ensure the lib folder exists
           cp love12-extracted/bin/love Nebulae.AppDir/usr/bin/
-          cp love12-extracted/lib/liblove-12.0.so Nebulae.AppDir/usr/lib/  # Copy the missing library
+          cp love12-extracted/lib/*.so Nebulae.AppDir/usr/lib/  # Copy the missing library
           cp game.love Nebulae.AppDir/usr/bin/
           echo -e '#!/bin/bash\nexec "$(dirname "$0")/love" "$(dirname "$0")/game.love" "$@"' > Nebulae.AppDir/AppRun
           chmod +x Nebulae.AppDir/AppRun
