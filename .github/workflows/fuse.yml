@@ -92,7 +92,7 @@ jobs:
           mv Nebulae-x86_64.AppImage build/linux/Nebulae.AppImage
 
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: Nebulae-Linux-x64
           path: build/linux/
