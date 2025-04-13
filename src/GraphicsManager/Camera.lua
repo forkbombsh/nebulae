@@ -39,14 +39,16 @@ end
 
 function Camera:push()
     local graphicsManager = self.graphicsManager
-    local ox, oy = (self.originX or 0.5) * graphicsManager.width, (self.originY or 0.5) * graphicsManager.height
     love.graphics.push()
-    love.graphics.translate(ox, oy)
-    love.graphics.scale(self.zoom or 1)
-    love.graphics.scale(self.stretchX or 1, self.stretchY or 1)
-    love.graphics.rotate(math.rad(self.rotation or 0))
-    love.graphics.translate(-ox, -oy)
-    love.graphics.translate(-self.x, -self.y)
+    if graphicsManager then
+        local ox, oy = (self.originX or 0.5) * graphicsManager.width, (self.originY or 0.5) * graphicsManager.height
+        love.graphics.translate(ox, oy)
+        love.graphics.scale(self.zoom or 1)
+        love.graphics.scale(self.stretchX or 1, self.stretchY or 1)
+        love.graphics.rotate(math.rad(self.rotation or 0))
+        love.graphics.translate(-ox, -oy)
+        love.graphics.translate(-self.x, -self.y)
+    end
 end
 
 function Camera:pop()

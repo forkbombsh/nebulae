@@ -15,6 +15,19 @@ for i, v in ipairs(love.filesystem.getDirectoryItems("src/states")) do
     end
 end
 
+local keyframeManager = KeyframeManager()
+
+local ball = {
+    0,
+    0
+}
+
+local tween = Tween(ball, {
+    100, 100
+}, 1, 2, keyframeManager:getCurve("quartout"))
+
+keyframeManager:addTween(tween)
+
 LoadTranslations()
 
 love.keyboard.setKeyRepeat(true)
@@ -30,6 +43,7 @@ end
 function love.draw()
     StateManager.passEvent("draw")
     love.graphics.printf(tostring(love.timer.getFPS()) .. " FPS", 0, 0, love.graphics.getWidth(), "right")
+    love.graphics.circle("fill", ball[1], ball[2], 10)
 end
 
 function love.update(dt)
@@ -37,6 +51,7 @@ function love.update(dt)
     StateManager.passEvent("update", dt)
     -- TextRender:updateAll(dt)
     Project:updateAll(dt)
+    keyframeManager:update(love.timer.getTime())
 end
 
 function love.mousepressed(x, y, b)
@@ -65,6 +80,7 @@ function love.keypressed(key)
     if love.keyboard.isDown("lctrl", "rctrl") and love.keyboard.isDown("lshift", "rshift") then
         if key == "l" then
             LoadTranslations()
+            StateManager.passEvent("resize", love.graphics.getDimensions())
         end
     end
 end

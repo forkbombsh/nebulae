@@ -33,7 +33,8 @@
     "importNebFileDialog": {
         "title": "Import NEB file",
         "acceptlabel": "Import",
-        "cancellabel": "Cancel"
+        "cancellabel": "Cancel",
+        "projectFileName":"Nebulae project file"
     },
     "projectDeletion": {
         "deleteButton": "Delete",

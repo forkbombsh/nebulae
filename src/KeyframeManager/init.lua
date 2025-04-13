@@ -32,6 +32,28 @@ KeyframeManager.curves = {
     linear = { 0, 100 }
 }
 
+function KeyframeManager:addTweenType(name, controlpoints)
+    KeyframeManager.curves[name] = controlpoints
+end
+
+function KeyframeManager:removeTweenType(name)
+    KeyframeManager.curves[name] = nil
+end
+
+function KeyframeManager:getCurve(name)
+    return KeyframeManager.curves[name]
+end
+
+function KeyframeManager:easingToXYCurve(fn, steps)
+    local curve = {}
+    for i = 0, steps do
+        local t = i / steps
+        table.insert(curve, t * 100)     -- X
+        table.insert(curve, fn(t) * 100) -- Y
+    end
+    return curve
+end
+
 function KeyframeManager:initialize()
     self.tweens = {}
 end
@@ -47,12 +69,21 @@ function KeyframeManager:convertToValid(curve)
 end
 
 function KeyframeManager:addTween(tween)
+    local bezierCurve
+    if tween.skipConversion then
+        bezierCurve = love.math.newBezierCurve(tween.controlpoints)
+    else
+        local validControlPoints = self:convertToValid(tween.controlpoints)
+        bezierCurve = love.math.newBezierCurve(validControlPoints)
+    end
+    tween.bezierCurve = bezierCurve
+    tween.isGood = true
     table.insert(self.tweens, tween)
 end
 
 function KeyframeManager:update(currentTime)
     for i, v in ipairs(self.tweens) do
-        if currentTime >= v.startTime and currentTime <= v.endTime then
+        if currentTime >= v.startTime - 0.1 and currentTime <= v.endTime + 0.1 then
             v:update(currentTime)
         end
     end

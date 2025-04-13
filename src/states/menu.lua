@@ -93,7 +93,7 @@ local function handleUI(w, h)
                 attachtowindow = true,
                 acceptlabel = GetTranslation("importNebFileDialog", "acceptlabel"),
                 cancellabel = GetTranslation("importNebFileDialog", "cancellabel"),
-                filters = { ["Nebulae project file"] = "neb" }
+                filters = { [GetTranslation("importNebFileDialog", "projectFileName")] = "neb" }
             })
         end
     })

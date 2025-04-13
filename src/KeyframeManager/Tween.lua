@@ -39,33 +39,31 @@ local function tweenRecursive(old, initial, target, t)
 end
 
 -- Tween class constructor
-function Tween:initialize(oldObj, newObj, startTime, endTime, controlpoints, keyframeManager)
-    local validControlPoints = keyframeManager:convertToValid(controlpoints)
-    local bezierCurve = love.math.newBezierCurve(validControlPoints)
-
-    self.bezierCurve = bezierCurve
+function Tween:initialize(oldObj, newObj, startTime, endTime, controlpoints)
+    self.isGood = false
+    self.controlpoints = controlpoints
     self.currentTime = 0
     self.oldObj = oldObj
     self.newObj = newObj
     self.startTime = startTime
     self.endTime = endTime
     self.initialValues = deepCopyNumbersOnly(oldObj) -- Safe copy of initial numeric values
-
-    keyframeManager:addTween(self)
 end
 
 -- Visualize the Bezier curve (for debugging)
 function Tween:visualise(x, y)
-    love.graphics.push()
-    love.graphics.translate(x, y)
-    love.graphics.line(self.bezierCurve:render())
-    love.graphics.pop()
+    if self.isGood then
+        love.graphics.push()
+        love.graphics.translate(x, y)
+        love.graphics.line(self.bezierCurve:render())
+        love.graphics.pop()
+    end
 end
 
 -- Update function to tween based on current time
 function Tween:update(currentTime)
+    if not self.newObj or not self.oldObj or not self.isGood then return end
     self.currentTime = currentTime
-    if not self.newObj then return end
 
     local progress = math.min(math.max((currentTime - self.startTime) / (self.endTime - self.startTime), 0), 1)
     local curveProgress = self.bezierCurve:evaluate(progress)
