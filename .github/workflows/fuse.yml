@@ -64,10 +64,11 @@ jobs:
         run: |
           cp game.love Nebulae.AppDir/
 
-      - name: download appimagetool
+      - name: download portable appimagetool
         run: |
-          curl -L -o appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool
+          curl -L -o appimagetool.tar.gz https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage.tar.gz
+          tar -xzf appimagetool.tar.gz
+          chmod +x appimagetool    
 
       - name: build AppImage
         run: |
