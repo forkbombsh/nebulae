@@ -1,0 +1,44 @@
+{
+    "language": "English",
+    "short": "en",
+    "menu": {
+        "createProjectButton": "Create project",
+        "importProjectButton": "Import project",
+        "projectsLabel": "Projects:",
+        "deleteProjectButton": "Delete"
+    },
+    "projectCreation": {
+        "projectNameLabel": "Project Name:",
+        "createProjectButton": "Create project",
+        "cancelProjectButton": "Cancel",
+        "projectWidthLabel": "Project Width:",
+        "projectHeightLabel": "Project Height:",
+        "projectFramerateLabel": "Framerate",
+        "projectAlreadyExists": "Project already exists."
+    },
+    "renderInfo": {
+        "renderInfoLabel": "Rendering",
+        "renderInfoDot": ".",
+        "renderInfoBackButton": "Cancel"
+    },
+    "creator": {
+        "projectTab": {
+            "name": "Project",
+            "renderButton": "Render",
+            "unloadButton": "Unload"
+        },
+        "playButton": "Play",
+        "pauseButton": "Pause"
+    },
+    "importNebFileDialog": {
+        "title": "Import NEB file",
+        "acceptlabel": "Import",
+        "cancellabel": "Cancel"
+    },
+    "projectDeletion": {
+        "deleteButton": "Delete",
+        "cancelButton": "Cancel",
+        "deleteProjectWarning": "Are you sure you want to delete this project? (%s)"
+    },
+    "title": "Nebulae"
+}

@@ -9,7 +9,7 @@ function love.conf(t)
     t.window.height = 720
     t.window.fullscreen = false
     t.window.resizable = true
-    t.window.vsync = false
+    t.window.vsync = true
     t.window.title = project.name .. " v" .. project.version
 
     -- Check if renderers are defined in the project and apply them
