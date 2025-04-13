@@ -19,7 +19,7 @@ local function checkForProjectExistance(name)
     projectAlreadyExists = false
     for i, v in ipairs(Project:getProjectList()) do
         local proj = Project:fetchProjectMeta(v)
-        if name == proj.name then
+        if name:lower() == proj.name:lower() then
             projectAlreadyExists = true
             break
         end

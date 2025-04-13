@@ -7,10 +7,39 @@ local state = {
     menuUIButtonBackgroundHoveredColor = { 0.3, 0.3, 0.3 },
     menuUIButtonBackgroundPressedColor = { 0.4, 0.4, 0.4 },
     menuUILabelBackgroundColor = { 0.2, 0.2, 0.2 },
-    menuUIBackgroundColor = { 0.1, 0.1, 0.1 }
+    menuUIBackgroundColor = { 0.1, 0.1, 0.1 },
+    deleteButtonBackgroundColor = { 1, 0.2, 0.2 },
+    deleteButtonBackgroundHoveredColor = { 1, 0.3, 0.3 },
+    deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
 }
 
 local texts = {}
+
+local function copyFolderNativeFS(src, dest)
+    -- Create destination directory if it doesn't exist
+    if not love.filesystem.getInfo(dest) then
+        NativeFS.createDirectory(dest)
+    end
+
+    -- Get all items in the source directory
+    local items = love.filesystem.getDirectoryItems(src)
+
+    for _, item in ipairs(items) do
+        local srcPath = src .. "/" .. item
+        local destPath = dest .. "/" .. item
+        local itemInfo = love.filesystem.getInfo(srcPath)
+
+        -- If it's a directory, recurse into it
+        if itemInfo.type == "directory" then
+            copyFolderNativeFS(srcPath, destPath)
+        else
+            -- If it's a file, copy it
+            local data = love.filesystem.read(srcPath)
+            NativeFS.write(destPath, data)
+        end
+    end
+end
+
 
 local function handleUI(w, h)
     love.graphics.setBackgroundColor(state.menuUIBackgroundColor)
@@ -19,18 +48,12 @@ local function handleUI(w, h)
 
     state.createProjectButton = nil
     state.loadProjectLabel = nil
-    if state.projectLoadButtons then
-        for i, v in ipairs(state.projectLoadButtons) do
-            UI.remove(v)
-        end
-    end
-    state.projectLoadButtons = nil
 
     local createProjectButton = UI.addNew("button", {
         x = 50,
         y = 50,
         width = w - 100,
-        height = 100,
+        height = 50,
         backgroundColor = state.menuUIButtonBackgroundColor,
         backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
         backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
@@ -43,6 +66,40 @@ local function handleUI(w, h)
     })
     state.createProjectButton = createProjectButton
 
+    local importProjectButton = UI.addNew("button", {
+        x = 50,
+        y = 120,
+        width = w - 100,
+        height = 50,
+        backgroundColor = state.menuUIButtonBackgroundColor,
+        backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
+        backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
+        text = GetTranslation("menu", "importProjectButton"),
+        borderRadius = 8,
+        font = MedBigFontArial,
+        onRelease = function()
+            love.window.showFileDialog("openfile", function(fileTable)
+                local filepath = fileTable[1]
+                local success = love.filesystem.mountFullPath(filepath, "tempProjectPath", "read", false)
+                if success then
+                    local filename = filepath:match("([^/\\]+)%.%w+$")
+                    if love.filesystem.exists("tempProjectPath/metadata.json") and love.filesystem.exists("tempProjectPath/layers.json") then
+                        copyFolderNativeFS("tempProjectPath", "projects/" .. filename)
+                    end
+                    love.filesystem.unmountFullPath(filepath)
+                    handleUI(love.graphics.getDimensions())
+                end
+            end, {
+                title = GetTranslation("importNebFileDialog", "title"),
+                attachtowindow = true,
+                acceptlabel = GetTranslation("importNebFileDialog", "acceptlabel"),
+                cancellabel = GetTranslation("importNebFileDialog", "cancellabel"),
+                -- filters = { "neb" }
+            })
+        end
+    })
+    state.importProjectButton = importProjectButton
+
     local projectList = Project:getProjectList()
 
     if #projectList > 0 then
@@ -52,31 +109,45 @@ local function handleUI(w, h)
             width = w - 100,
             height = 50,
             font = MedBigFontArial,
-            backgroundColor = state.menuUILabelBackgroundColor,
+            backgroundColor = { 0, 0, 0, 0 },
             text = GetTranslation("menu", "loadProjectLabel"),
             borderRadius = 8
         })
         state.loadProjectLabel = loadProjectLabel
-        state.projectLoadButtons = {}
         for i, v in ipairs(projectList) do
             local proj = Project:fetchProjectMeta(v)
-            local button = UI.addNew("button", {
+            UI.addNew("button", {
                 x = 50,
                 y = 200 + i * 40,
-                width = w - 100,
+                width = w - 250,
                 font = MedFontArial,
                 height = 40,
                 backgroundColor = state.menuUIButtonBackgroundColor,
                 backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
                 backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
                 text = proj.name or v,
-                borderRadius = 0,
+                borderRadius = 8,
                 onRelease = function()
                     StateManager.switch("creator", v)
                 end,
                 z = 2 + i
             })
-            table.insert(state.projectLoadButtons, button)
+            UI.addNew("button", {
+                x = 50 + w - 225,
+                y = 200 + i * 40,
+                width = 125,
+                font = MedFontArial,
+                height = 40,
+                backgroundColor = state.deleteButtonBackgroundColor,
+                backgroundColorHover = state.deleteButtonBackgroundHoveredColor,
+                backgroundColorPress = state.deleteButtonBackgroundPressedColor,
+                text = proj.name or v,
+                borderRadius = 8,
+                onRelease = function()
+                    StateManager.switch("projectDeletion", v)
+                end,
+                z = 2 + i
+            })
         end
     end
 end
@@ -103,7 +174,7 @@ function state:resize(w, h)
     handleUI(w, h)
     if StartLoadTimeStartTime then
         print("Load Time: " .. (socket.gettime() - StartLoadTimeStartTime))
-        StartLoadTimeStartTime=nil
+        StartLoadTimeStartTime = nil
     end
 end
 

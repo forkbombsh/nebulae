@@ -33,6 +33,11 @@ function Project:getProjectMetaFromDefault(name, width, height)
     return project
 end
 
+function Project:deleteProject(name)
+    print("Deleting project...")
+    NativeFS.remove("projects/" .. name)
+end
+
 function Project:createNewProject(project)
     print("Creating new project...")
     for i, v in ipairs(self:getProjectList()) do

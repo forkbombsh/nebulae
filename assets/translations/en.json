@@ -3,6 +3,7 @@
     "short": "en",
     "menu": {
         "createProjectButton": "Create project",
+        "importProjectButton": "Import project",
         "loadProjectLabel": "Or, load project"
     },
     "projectCreation": {
@@ -27,6 +28,11 @@
         },
         "playButton": "Play",
         "pauseButton": "Pause"
+    },
+    "importNebFileDialog": {
+        "title": "Import NEB file",
+        "acceptlabel": "Import",
+        "cancellabel": "Cancel"
     },
     "title": "Nebulae"
 }

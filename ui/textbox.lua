@@ -29,6 +29,8 @@ function textbox:new(args)
 
     b.font = args.font or love.graphics.getFont()
 
+    b.blinker = "_"
+
     return b
 end
 
@@ -54,7 +56,7 @@ function textbox:draw()
         local blinkerX = self.x + 10 + self.textMarginX + font:getWidth(blinkerLine)
         local blinkerY = self.y + 10 + self.textMarginY + (lineHeight * (#blinkerLines - 1))
 
-        love.graphics.print("_", blinkerX, blinkerY)
+        love.graphics.print(self.blinker, blinkerX + font:getWidth(self.blinker), blinkerY)
     end
 end
 
