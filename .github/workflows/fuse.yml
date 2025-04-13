@@ -63,9 +63,8 @@ jobs:
       - name: setup Nebulae.AppDir
         run: |
           mkdir -p Nebulae.AppDir/usr/bin
-          # Check where the love binary is actually located
-          find love12-extracted -name "love"  # This will help us locate the "love" binary
-          cp love12-extracted/usr/bin/love Nebulae.AppDir/usr/bin/ || cp love12-extracted/love Nebulae.AppDir/usr/bin/
+          # Now explicitly copying from the correct location of "love"
+          cp love12-extracted/bin/love Nebulae.AppDir/usr/bin/
           cp game.love Nebulae.AppDir/usr/bin/
           echo -e '#!/bin/bash\nexec "$(dirname "$0")/love" "$(dirname "$0")/game.love" "$@"' > Nebulae.AppDir/AppRun
           chmod +x Nebulae.AppDir/AppRun
@@ -93,7 +92,8 @@ jobs:
           mv Nebulae-x86_64.AppImage build/linux/Nebulae.AppImage
 
       - name: upload artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v3
         with:
           name: Nebulae-Linux-x64
           path: build/linux/
+
