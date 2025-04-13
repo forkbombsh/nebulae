@@ -43,7 +43,7 @@ jobs:
           zip -r ../fused-game.zip .
 
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@a163379d7c6ec6b0adf1a1a2d29f2190f2e7ecaf
         with:
           name: fused-windows-game
           path: fused-game.zip
