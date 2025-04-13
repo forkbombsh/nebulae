@@ -62,11 +62,11 @@ end
 
 -- Update function to tween based on current time
 function Tween:update(currentTime)
-    if not self.newObj or not self.oldObj or not self.isGood then return end
+    if not self.newObj or not self.oldObj then return end
     self.currentTime = currentTime
 
     local progress = math.min(math.max((currentTime - self.startTime) / (self.endTime - self.startTime), 0), 1)
-    local curveProgress = self.bezierCurve:evaluate(progress)
+    local _, curveProgress = self.bezierCurve:evaluate(progress)
     local t = curveProgress / 100
 
     tweenRecursive(self.oldObj, self.initialValues, self.newObj, t)
