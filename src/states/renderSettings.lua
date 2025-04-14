@@ -39,7 +39,7 @@ local function handleUI(w, h)
         borderRadius = 8,
         font = MedFontArial,
         onRelease = function()
-            StateManager.switch("renderInfo", state.folderName, state.stateAfter, Renderer.renderThings[curEncoderPick], {}, state.folderName)
+            StateManager.switch("renderInfo", state.folderName, state.stateAfter, Renderer.renderThings[curEncoderPick], {}, unpack(state.args))
         end
     })
 

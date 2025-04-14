@@ -9,6 +9,15 @@ function panel:new(args)
     b.elements = {}
     b.basedPos = args.basedPos or true
 
+    b.scrollYOffset = args.scrollYOffset or 0
+    b.scrollYSize = args.scrollYSize or 20
+
+    if type(args.invertedScrolling) == "boolean" then
+        b.invertedScrolling = args.invertedScrolling
+    else
+        b.invertedScrolling = false
+    end
+
     b.isOpen = true
 
     return b
@@ -17,6 +26,8 @@ end
 function panel:add(element)
     element.parent = self
     element.childID = shared.getUniqueID()
+    element._.oldMainDraw = element.mainDraw
+    element.mainDraw = false
     if element.addedToPanel then
         element:addedToPanel()
     end
@@ -40,6 +51,9 @@ function panel:remove(element)
     self.elements[element.childID] = nil
     element.parent = nil
     element.childID = nil
+    if type(element._.oldMainDraw) == "boolean" then
+        element.mainDraw = element._.oldMainDraw
+    end
 end
 
 function panel:removeAll()
@@ -53,7 +67,7 @@ function panel:draw()
 
     self:applyStencilMask(function()
         for _, element in pairs(self.elements) do
-            if element.draw then
+            if element.draw and not element.mainDraw then
                 element:draw()
             end
         end
@@ -67,7 +81,7 @@ function panel:update(dt)
         end
         if self.basedPos then
             element.x = self.x + element.bx
-            element.y = self.y + element.by
+            element.y = self.y + element.by + self.scrollYOffset
         end
     end
 end
@@ -87,6 +101,12 @@ function panel:sendEventSelf(name, ...)
         if type(func) == "function" then
             func(element, ...) -- Call on the element itself without parent looping
         end
+    end
+end
+
+function panel:wheelmoved(dx, dy)
+    if self:isMouseInside() then
+        self.scrollYOffset = self.scrollYOffset + dy * self.scrollYSize * (self.invertedScrolling and -1 or 1)
     end
 end
 

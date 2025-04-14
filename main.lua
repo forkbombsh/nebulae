@@ -5,17 +5,6 @@ EnsureDirectory("projects")
 EnsureDirectory("renders")
 EnsureDirectory("plugins")
 
-local encoders = io.popen("ffmpeg -encoders"):read("*a")
-if encoders:match("h264_nvenc") then
-    print("NVIDIA NVENC available")
-end
-if encoders:match("h264_amf") then
-    print("AMD AMF available")
-end
-if encoders:match("libx264") then
-    print("libx264 (software) available")
-end
-
 if IsMobile then
     love.window.setMode(1, 2, { fullscreen = false })
 end

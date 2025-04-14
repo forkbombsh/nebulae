@@ -24,18 +24,11 @@ pprint.setup {
     show_all = true,
     wrap_array = true,
 }
-Json = require("lib.json")
-Class = require("lib.middleclass")
-require("src.GraphicsManager")
-require("src.Project")
-StateManager = require("src.stateManager")
-require("src.Player")
-require("src.Renderer")
+
 UI = require("ui")
-TextRender = require("src.TextRender")
-ProjectPluginManager = require("src.ProjectPluginManager")
-require("src.AudioManager")
-require("src.KeyframeManager")
+Json = require("lib.json")
+StateManager = require("src.stateManager")
+require("nebulae")
 
 Translations = {}
 Language = "en"

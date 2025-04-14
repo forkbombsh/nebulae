@@ -1,5 +1,5 @@
 local json = require("lib.json")
-local Player = require("src.Player")
+local Player = require("nebulae.Player")
 local timeTween = require("src.timeTween")
 local graphicsManager = require("src.graphicsManager")
 local audioManager = require("src.audioManager")

@@ -119,7 +119,7 @@ local function handleUI(w, h)
             local proj = Project:fetchProjectMeta(v)
             UI.addNew("button", {
                 x = 50,
-                y = 200 + i * 40,
+                y = 200 + i * 50,
                 width = w - 250,
                 font = MedFontArial,
                 height = 40,
@@ -135,7 +135,7 @@ local function handleUI(w, h)
             })
             UI.addNew("button", {
                 x = 50 + w - 225,
-                y = 200 + i * 40,
+                y = 200 + i * 50,
                 width = 125,
                 font = MedFontArial,
                 height = 40,
