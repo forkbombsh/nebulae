@@ -11,8 +11,10 @@ local creator = {
     deleteButtonBackgroundColor = { 1, 0.2, 0.2 },
     deleteButtonBackgroundHoveredColor = { 1, 0.3, 0.3 },
     deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
-    menubarHeight = 20
+    menubarHeight = 20,
+    timelineHeight = 200
 }
+local timelineComponent = require("src.components.timeline")
 
 local function handleUI(w, h)
     UI.removeAll()
@@ -119,6 +121,15 @@ local function handleUI(w, h)
 
     menubar:add(projectMenubarButton)
     menubar:add(playToggleButton)
+
+    local timelinePanel = UI.addNew("panel", {
+        x = 0,
+        y = h - creator.timelineHeight,
+        width = w,
+        height = creator.timelineHeight,
+        backgroundColor = {0.15, 0.15, 0.15}
+    })
+    creator.tomelinePanel = timelinePanel
 end
 
 function creator:enter(name)
@@ -136,7 +147,7 @@ function creator:draw()
     local graphicsManager = project.graphicsManager
 
     local ox, oy, scale = LetterboxFitScale(0, creator.menubarHeight, love.graphics.getWidth(), love.graphics.getHeight(),
-        graphicsManager.width, graphicsManager.height)
+        graphicsManager.width, graphicsManager.height + 200)
     love.graphics.push()
     love.graphics.translate(ox, oy)
     love.graphics.scale(scale)
@@ -144,6 +155,7 @@ function creator:draw()
     love.graphics.pop()
     love.graphics.setColor(1, 1, 1)
     UI.draw()
+    timelineComponent:draw()
 end
 
 function creator:update(dt)

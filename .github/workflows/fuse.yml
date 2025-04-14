@@ -22,7 +22,7 @@ jobs:
         run: unzip love-win64.zip -d love12
 
       - name: create love archive
-        run: zip -r game.love *.lua src ui lib config nebulae
+        run: zip -r game.love *.lua src ui lib config
 
       - name: fuse Nebulae.exe
         run: |

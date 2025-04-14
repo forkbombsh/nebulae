@@ -44,7 +44,7 @@ local function handleUI(w, h)
     UI.removeAll()
 
     state.createProjectButton = nil
-    state.loadProjectLabel = nil
+    state.loadProjectLabel    = nil
 
     local createProjectButton = UI.addNew("button", {
         x = 50,
@@ -100,12 +100,20 @@ local function handleUI(w, h)
     })
     state.importProjectButton = importProjectButton
 
-    local projectList = Project:getProjectList()
+    local projectList         = Project:getProjectList()
+
+    local projectsPanel       = UI.addNew("panel", {
+        x = 40,
+        y = 260,
+        width = w - 100,
+        height = 300,
+        backgroundColor = { 0, 0, 0, 0 }
+    })
 
     if #projectList > 0 then
         local text = GetTranslation("menu", "projectsLabel")
         local loadProjectLabel = UI.addNew("label", {
-            x = 50,
+            x = 60,
             y = 200,
             width = MedBigFontArial:getWidth(text),
             height = 50,
@@ -117,10 +125,11 @@ local function handleUI(w, h)
         state.loadProjectLabel = loadProjectLabel
         for i, v in ipairs(projectList) do
             local proj = Project:fetchProjectMeta(v)
-            UI.addNew("button", {
-                x = 50,
-                y = 200 + i * 50,
-                width = w - 250,
+            local y = i * 50 - 50
+            local loadButton = UI.new("button", {
+                x = 10,
+                y = y,
+                width = w - 260,
                 font = MedFontArial,
                 height = 40,
                 backgroundColor = state.menuUIButtonBackgroundColor,
@@ -133,10 +142,10 @@ local function handleUI(w, h)
                 end,
                 z = 2 + i
             })
-            UI.addNew("button", {
-                x = 50 + w - 225,
-                y = 200 + i * 50,
-                width = 125,
+            local deleteButton = UI.new("button", {
+                x = w - 235,
+                y = y,
+                width = 135,
                 font = MedFontArial,
                 height = 40,
                 backgroundColor = state.deleteButtonBackgroundColor,
@@ -149,6 +158,8 @@ local function handleUI(w, h)
                 end,
                 z = 2 + i
             })
+            projectsPanel:add(loadButton)
+            projectsPanel:add(deleteButton)
         end
     end
 end

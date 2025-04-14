@@ -28,34 +28,49 @@ function label:new(args)
     return b
 end
 
+function label:updateLayoutCache()
+    if self._cachedText ~= self.text or self._cachedWidth ~= self.width or self._cachedFont ~= self.font then
+        self._cachedText = self.text
+        self._cachedFont = self.font
+        self._cachedWidth = self.width
+        if self.wrapText then
+            local _, lines = self.font:getWrap(self.text, self.width)
+            self._cachedWrappedText = lines
+        else
+            self._cachedWrappedText = nil
+        end
+    end
+end
+
 function label:draw()
-    self:baseDraw() -- Call the parent class drawing logic
+    self:baseDraw()
+    self:updateLayoutCache()
 
     local r, g, b, a = love.graphics.getColor()
+    love.graphics.setColor(self.textColor)
 
     local font = self.font
     local textHeight = font:getHeight()
 
-    love.graphics.setColor(self.textColor)
     if self.disabled then
         local rd2, gd2, bd2 = love.graphics.getColor()
-        rd2, gd2, bd2 = rd2 * 0.3, gd2 * 0.3, bd2 * 0.3
-        love.graphics.setColor(rd2, gd2, bd2)
+        love.graphics.setColor(rd2 * 0.3, gd2 * 0.3, bd2 * 0.3)
     end
-    self:applyStencilMask(function()
-        if self.wrapText then
-            local width, wrappedText = font:getWrap(self.text, self.width)
-            local yOffset = math.floor(self.y + (self.height - #wrappedText * textHeight) / 2)
-            for i, line in ipairs(wrappedText) do
-                love.graphics.print(line, self.font, math.floor(self.x + (self.width - font:getWidth(line)) / 2),
-                    yOffset + (i - 1) * textHeight)
-            end
-        else
-            local textWidth = font:getWidth(self.text)
-            love.graphics.print(self.text, self.font, math.floor(self.x + (self.width - textWidth) / 2),
-                math.floor(self.y + (self.height - textHeight) / 2))
+
+    if self.wrapText and self._cachedWrappedText then
+        local yOffset = math.floor(self.y + (self.height - #self._cachedWrappedText * textHeight) / 2)
+        for i, line in ipairs(self._cachedWrappedText) do
+            love.graphics.print(line, font,
+                math.floor(self.x + (self.width - font:getWidth(line)) / 2),
+                yOffset + (i - 1) * textHeight)
         end
-    end)
+    else
+        local textWidth = font:getWidth(self.text)
+        love.graphics.print(self.text, font,
+            math.floor(self.x + (self.width - textWidth) / 2),
+            math.floor(self.y + (self.height - textHeight) / 2))
+    end
+
     love.graphics.setColor(r, g, b, a)
 end
 

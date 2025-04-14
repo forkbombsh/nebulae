@@ -30,6 +30,10 @@ function ui.new(etype, args)
     return element
 end
 
+function ui.markZDirty()
+    ui._needsSort = true
+end
+
 function ui.add(element)
     local id = element.id
     elements[id] = element
@@ -50,15 +54,8 @@ function ui.add(element)
     if element.onAdded then
         element:onAdded()
     end
+    ui._needsSort = true
     return element
-end
-
-function ui.addNew(etype, args)
-    return ui.add(ui.new(etype, args))
-end
-
-function ui.getElement(id)
-    return elements[id]
 end
 
 function ui.remove(element)
@@ -76,19 +73,33 @@ function ui.remove(element)
         element:onRemoved()
     end
     elements[element.id] = nil
+    ui._needsSort = true
+end
+
+function ui.addNew(etype, args)
+    return ui.add(ui.new(etype, args))
+end
+
+function ui.getElement(id)
+    return elements[id]
 end
 
 function ui.removeAll()
     for id, element in pairs(elements) do
         ui.remove(element)
     end
+    ui._needsSort = true
 end
 
 function ui.sendEvent(name, ...)
     for id, element in pairs(elements) do
         local func = element[name]
         if not element.disabled and type(func) == "function" then
-            func(...)
+            if element.parent then
+                element.parent:sendEvent(name, ...)
+            else
+                func(...)
+            end
         end
     end
 end
@@ -97,7 +108,11 @@ function ui.sendEventSelf(name, ...)
     for id, element in pairs(elements) do
         local func = element[name]
         if not element.disabled and type(func) == "function" then
-            func(element, ...)
+            if element.parent then
+                element.parent:sendEventSelf(name, ...)
+            else
+                func(element, ...)
+            end
         end
     end
 end
@@ -124,14 +139,16 @@ function ui.update(dt)
 end
 
 function ui.draw()
-    -- Sort elements by z-order before drawing
-    local sortedElements = {}
-    for _, element in pairs(elements) do
-        table.insert(sortedElements, element)
+    if ui._needsSort then
+        ui._sortedElements = {}
+        for _, element in pairs(elements) do
+            table.insert(ui._sortedElements, element)
+        end
+        table.sort(ui._sortedElements, function(a, b) return a.z < b.z end)
+        ui._needsSort = false
     end
-    table.sort(sortedElements, function(a, b) return a.z < b.z end)
 
-    for _, element in ipairs(sortedElements) do
+    for _, element in ipairs(ui._sortedElements) do
         local func = element["draw"]
         if type(func) == "function" and not element.parent and element.mainDraw then
             func(element)
@@ -157,7 +174,6 @@ ui.addElementType("panel", require("ui.panel"))
 ui.addElementType("button", require("ui.button"))
 ui.addElementType("label", require("ui.label"))
 ui.addElementType("closeablePanel", require("ui.closeablePanel"))
-ui.addElementType("menubar", require("ui.menubar"))
 ui.addElementType("dropdown", require("ui.dropdown"))
 ui.addElementType("textbox", require("ui.textbox"))
 

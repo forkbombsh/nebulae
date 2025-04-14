@@ -29,6 +29,7 @@ Class = require("lib.middleclass")
 UI = require("ui")
 Json = require("lib.json")
 StateManager = require("src.stateManager")
+Flux = require("lib.flux")
 
 require("src.GraphicsManager")
 require("src.Project")
@@ -297,4 +298,9 @@ function math.average(numTable, ...)
     else
         error("Expected number or table, got " .. type(numTable))
     end
+end
+
+-- turns 1280x720 into something like 0.239487x0.243824
+function RelativeScale(w1, h1, w2, h2)
+    return w2 / w1, h2 / h1
 end

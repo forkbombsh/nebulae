@@ -48,6 +48,30 @@ function element:new(args)
         b.disabled = false
     end
 
+    if type(args.stencilXOffset) == "number" then
+        b.stencilXOffset = args.stencilXOffset
+    else
+        b.stencilXOffset = 1
+    end
+
+    if type(args.stencilYOffset) == "number" then
+        b.stencilYOffset = args.stencilYOffset
+    else
+        b.stencilYOffset = 1
+    end
+
+    if type(args.stencilWidthOffset) == "number" then
+        b.stencilWidthOffset = args.stencilWidthOffset
+    else
+        b.stencilWidthOffset = -2
+    end
+
+    if type(args.stencilHeightOffset) == "number" then
+        b.stencilHeightOffset = args.stencilHeightOffset
+    else
+        b.stencilHeightOffset = -2
+    end
+
     return b
 end
 
@@ -56,30 +80,31 @@ function element:isMouseInside()
     return mx >= self.x and mx <= self.x + self.width and my >= self.y and my <= self.y + self.height
 end
 
+function element:aabbCompare(x1, y1, w1, h1, x2, y2, w2, h2)
+    return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
+end
+
 -- Base draw function
 function element:baseDraw()
     if self.hasBackground then
+        local x, y, w, h, br = self.x, self.y, self.width, self.height, self.borderRadius
         local lineStyle = love.graphics.getLineStyle()
         love.graphics.setLineStyle(self.lineStyle)
         local r, g, b, a = love.graphics.getColor()
         love.graphics.setColor(self._.curbackgroundColor)
-        love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.borderRadius)
-
-        if self.borderRadius > 0 and (self.borderColor[4] ~= nil and (self.borderColor[4] < 1)) then
-            love.graphics.rectangle("line", self.x, self.y, self.width, self.height, self.borderRadius)
-        end
+        love.graphics.rectangle("fill", x, y, w, h, br)
 
         local lineWidth = love.graphics.getLineWidth()
         love.graphics.setLineWidth(self.borderThickness)
         love.graphics.setColor(self._.curBorderColor)
-        love.graphics.rectangle("line", self.x, self.y, self.width, self.height, self.borderRadius)
-        love.graphics.setLineWidth(lineWidth)
-        love.graphics.setLineStyle(lineStyle)
+        love.graphics.rectangle("line", x, y, w, h, br)
         if self.disabled then
             love.graphics.setColor(0, 0, 0, 0.3)
-            love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.borderRadius)
-            love.graphics.rectangle("line", self.x, self.y, self.width, self.height, self.borderRadius)
+            love.graphics.rectangle("fill", x, y, w, h, br)
+            love.graphics.rectangle("line", x, y, w, h, br)
         end
+        love.graphics.setLineWidth(lineWidth)
+        love.graphics.setLineStyle(lineStyle)
         love.graphics.setColor(r, g, b, a)
     end
 end
@@ -90,7 +115,10 @@ function element:draw()
 end
 
 function element:drawStencilMask()
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, self.borderRadius)
+    local xOffset, yOffset, widthOffset, heightOffset = self.stencilXOffset, self.stencilYOffset, self
+    .stencilWidthOffset, self.stencilHeightOffset
+    love.graphics.rectangle("fill", self.x + xOffset, self.y + yOffset, self.width + widthOffset,
+        self.height + heightOffset, self.borderRadius)
 end
 
 function element:getStencilMask()

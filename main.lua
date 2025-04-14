@@ -29,6 +29,7 @@ end
 
 function love.draw()
     StateManager.passEvent("draw")
+    love.graphics.setColor(1, 1, 1)
     love.graphics.printf(tostring(love.timer.getFPS()) .. " FPS", 0, 0, love.graphics.getWidth(), "right")
 end
 
@@ -36,6 +37,7 @@ function love.update(dt)
     dt = Renderer:update(dt)
     StateManager.passEvent("update", dt)
     Project:updateAll(dt)
+    Flux.update(dt)
 end
 
 function love.mousepressed(x, y, b)

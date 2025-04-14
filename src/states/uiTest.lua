@@ -5,30 +5,46 @@ local function setupUI()
 
     local panel = UI.addNew("panel", {
         x = 10,
-        y = 10,
-        width = 400,
-        height = 400,
+        y = 100,
+        width = 600,
+        height = 600,
         backgroundColor = { 0, 0, 0 },
         borderColor = { 1, 1, 1 },
         borderRadius = 10,
         z = 1
     })
 
-    for x = 1, 3 do
-        for y = 1, 10 do
+    for x = 1, 10 do
+        for y = 1, 100 do
             local button = UI.new("button", {
-                x = x * 110-80,
-                y = y * 60-30,
-                width = 100,
+                x = x * 60-50,
+                y = y * 60-50,
+                width = 50,
                 height = 50,
                 backgroundColor = { 0, 0, 0 },
                 borderColor = { 1, 1, 1 },
                 borderRadius = 10,
-                z = 2
+                z = 2,
+                onRelease = function()
+                    print(x, y)
+                end
             })
             panel:add(button)
         end
     end
+    UI.addNew("button", {
+        x = 20,
+        y = 20,
+        width = 100,
+        height = 50,
+        backgroundColor = { 0, 0, 0 },
+        borderColor = { 1, 1, 1 },
+        borderRadius = 10,
+        z = 2,
+        onRelease = function()
+            print("hello world")
+        end
+    })
 end
 
 function state:enter()
