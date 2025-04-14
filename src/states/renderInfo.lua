@@ -29,7 +29,7 @@ function state:enter(name, gotostate, ...)
     end)
     local args = { ... }
     Renderer:start(self.project.graphicsManager.width, self.project.graphicsManager.height,
-        self.project.graphicsManager.fps, self.project, function()
+        self.project.graphicsManager.fps, self.project, Renderer.renderThings.libx264, {}, function()
             StateManager.switch(gotostate, unpack(args))
         end)
 end
