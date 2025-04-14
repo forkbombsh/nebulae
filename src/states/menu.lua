@@ -7,6 +7,7 @@ local state = {
     menuUIButtonBackgroundHoveredColor = { 0.3, 0.3, 0.3 },
     menuUIButtonBackgroundPressedColor = { 0.4, 0.4, 0.4 },
     menuUILabelBackgroundColor = { 0.2, 0.2, 0.2 },
+    menuUILabel2BackgroundColor = { 0.15, 0.15, 0.15 },
     menuUIBackgroundColor = { 0.1, 0.1, 0.1 },
     deleteButtonBackgroundColor = { 1, 0.2, 0.2 },
     deleteButtonBackgroundHoveredColor = { 1, 0.3, 0.3 },
@@ -102,34 +103,36 @@ local function handleUI(w, h)
 
     local projectList         = Project:getProjectList()
 
-    local projectsPanel       = UI.addNew("panel", {
-        x = 40,
-        y = 260,
-        width = w - 100,
-        height = 300,
-        backgroundColor = { 0, 0, 0, 0 }
-    })
-
     if #projectList > 0 then
-        local text = GetTranslation("menu", "projectsLabel")
+        local text             = GetTranslation("menu", "projectsLabel")
         local loadProjectLabel = UI.addNew("label", {
-            x = 60,
-            y = 200,
-            width = MedBigFontArial:getWidth(text),
+            x = 50,
+            y = 220,
+            width = 400,
             height = 50,
             font = MedBigFontArial,
-            backgroundColor = { 0, 0, 0, 0 },
+            backgroundColor = state.menuUILabel2BackgroundColor,
             text = text,
-            borderRadius = 8
+            borderRadius = 8,
+            z = -1
         })
         state.loadProjectLabel = loadProjectLabel
+
+        local projectsPanel    = UI.addNew("panel", {
+            x = 50,
+            y = 260,
+            width = 400,
+            height = 300,
+            borderRadius = 8,
+            backgroundColor = state.menuUILabel2BackgroundColor
+        })
         for i, v in ipairs(projectList) do
             local proj = Project:fetchProjectMeta(v)
-            local y = i * 50 - 50
+            local y = i * 50 - 40
             local loadButton = UI.new("button", {
                 x = 10,
                 y = y,
-                width = w - 260,
+                width = 330,
                 font = MedFontArial,
                 height = 40,
                 backgroundColor = state.menuUIButtonBackgroundColor,
@@ -143,18 +146,18 @@ local function handleUI(w, h)
                 z = 2 + i
             })
             local deleteButton = UI.new("button", {
-                x = w - 235,
+                x = 10 + 340,
                 y = y,
-                width = 135,
+                width = 40,
                 font = MedFontArial,
                 height = 40,
                 backgroundColor = state.deleteButtonBackgroundColor,
                 backgroundColorHover = state.deleteButtonBackgroundHoveredColor,
                 backgroundColorPress = state.deleteButtonBackgroundPressedColor,
-                text = GetTranslation("menu", "deleteProjectButton"),
+                text = "Del", -- placeholder for a trash icon for right now
                 borderRadius = 8,
                 onRelease = function()
-                    StateManager.switch("projectDeletion", v)
+                    StateManager.switch("projectDeletion", v, "menu")
                 end,
                 z = 2 + i
             })
