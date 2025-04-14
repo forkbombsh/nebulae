@@ -1,5 +1,5 @@
 {
-    "description": "basic plugin that provides basic audio stuff",
+    "description": "basic plugin that provides basic stuff",
     "version": "1.0.0",
     "author": "Nebulae",
     "dependencies": [],
