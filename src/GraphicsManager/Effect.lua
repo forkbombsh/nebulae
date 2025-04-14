@@ -1,4 +1,4 @@
-Effect = Class("Object")
+Effect = Class("Effect")
 
 function Effect:initialize(obj, graphicsManager)
     if (type(obj) ~= "table") then
