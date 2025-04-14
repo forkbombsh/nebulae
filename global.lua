@@ -28,6 +28,7 @@ pprint.setup {
 UI = require("ui")
 Json = require("lib.json")
 StateManager = require("src.stateManager")
+
 require("nebulae")
 
 Translations = {}
