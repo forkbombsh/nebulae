@@ -1,10 +1,10 @@
-local textRender = Class("TextRender")
+TextRender = Class("TextRender")
 
 local cachedFonts = {}
 local curTexts = {}
 
 -- Font caching method
-function textRender:getFont(font, quality)
+function TextRender:getFont(font, quality)
     local cachedFont
     if font and font.typeOf then
         cachedFont = font
@@ -21,7 +21,7 @@ function textRender:getFont(font, quality)
 end
 
 -- Initialization
-function textRender:initialize(text, x, y, size, quality, spacing, font, project)
+function TextRender:initialize(text, x, y, size, quality, spacing, font, project)
     x = x or 0
     y = y or 0
     quality = quality or 20
@@ -39,12 +39,12 @@ function textRender:initialize(text, x, y, size, quality, spacing, font, project
     print("new text object")
 end
 
-function textRender:setText(text)
+function TextRender:setText(text)
     self.text = text
 end
 
 -- Draw method
-function textRender:draw()
+function TextRender:draw()
     if not self.segments then return end
 
     local scaleFactor = self.size / self.quality
@@ -64,6 +64,3 @@ function textRender:draw()
     end
     love.graphics.pop()
 end
-
--- Return the class
-return textRender

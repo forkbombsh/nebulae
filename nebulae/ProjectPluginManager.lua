@@ -1,21 +1,22 @@
--- PluginManager.lua
-local PluginManager = Class("PluginManager")
+-- ProjectPluginManager.lua
+ProjectPluginManager = Class("PluginManager")
 
-function PluginManager:initialize(project)
+function ProjectPluginManager:initialize(project, pluginDir)
     print("init plugin manager")
     self.plugins = {}
     self.loadedPlugins = {}
     self.project = project
+    self.pluginDir = pluginDir or "plugins"
 end
 
-function PluginManager:callPluginFunction(pluginName, name, ...)
+function ProjectPluginManager:callPluginFunction(pluginName, name, ...)
     local plugin = self.plugins[pluginName]
     if type(plugin) == "table" and type(plugin[name]) == "function" then
         return plugin[name](plugin, ...)
     end
 end
 
-function PluginManager:loadAllPlugins()
+function ProjectPluginManager:loadAllPlugins()
     for _, pluginName in ipairs(love.filesystem.getDirectoryItems("plugins")) do
         local info = love.filesystem.getInfo("plugins/" .. pluginName)
         if info.type == "directory" then
@@ -24,7 +25,7 @@ function PluginManager:loadAllPlugins()
     end
 end
 
-function PluginManager:loadPlugin(pluginName)
+function ProjectPluginManager:loadPlugin(pluginName)
     -- Check if the plugin is already loaded
     if self.loadedPlugins[pluginName] then
         print("Plugin '" .. pluginName .. "' is already loaded.")
@@ -62,7 +63,7 @@ function PluginManager:loadPlugin(pluginName)
     end
 end
 
-function PluginManager:loadMeta(metaPath)
+function ProjectPluginManager:loadMeta(metaPath)
     local metaFileContent = love.filesystem.read(metaPath)
     if not metaFileContent then
         print("Failed to read meta file: " .. metaPath)
@@ -76,12 +77,10 @@ function PluginManager:loadMeta(metaPath)
     return meta
 end
 
-function PluginManager:unload()
+function ProjectPluginManager:unload()
     for pluginName, plugin in pairs(self.plugins) do
         self:callPluginFunction(pluginName, "unload")
     end
     self.plugins = nil
     self.loadedPlugins = nil
 end
-
-return PluginManager

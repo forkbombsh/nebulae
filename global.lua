@@ -25,11 +25,13 @@ pprint.setup {
     wrap_array = true,
 }
 
+Class = require("lib.middleclass")
 UI = require("ui")
 Json = require("lib.json")
 StateManager = require("src.stateManager")
 
-require("nebulae")
+Nebulae = require("nebulae")
+Nebulae.req()
 
 Translations = {}
 Language = "en"

@@ -1,6 +1,7 @@
 Project = Class("Project")
 Project.projects = {}
 local socket = require("socket")
+local shared = require("nebulae.shared")
 
 local defaultProject = {
     name = "Untitled",
@@ -121,7 +122,7 @@ function Project:load(onFinish)
     local graphicsManager = self.graphicsManager
 
     print("loading plugins...")
-    self.pluginManager = ProjectPluginManager(self)
+    self.pluginManager = ProjectPluginManager(self, shared.getPluginDir())
 
     self.pluginManager:loadAllPlugins()
     self.isLoaded = true
