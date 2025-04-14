@@ -1,4 +1,4 @@
--- basic (this would be the basic plugin for things like text, rectangle, etc.)
+-- basic plugin for basic things
 local basic = {}
 local cachedImages = {}
 
@@ -12,6 +12,30 @@ function basic:init(project)
     local graphicsManager = project.graphicsManager
     graphicsManager:registerObjectType({
         name = "rectangle",
+        description = "A simple rectangle.",
+        args = {
+            width = {
+                type = "number",
+                description = "The width of the rectangle.",
+                optional = false
+            },
+            height = {
+                type = "number",
+                description = "The height of the rectangle.",
+                optional = false
+            },
+            mode = {
+                type = "string",
+                description = "Can either be 'fill' or 'line'",
+                options = { "fill", "line" },
+                optional = true
+            },
+            lineWidth = {
+                type = "number",
+                description = "Only applies when the mode is 'line'.",
+                optional = true
+            }
+        },
         init = function(obj)
             local width = obj.width or 100
             local height = obj.height or 100
@@ -36,6 +60,25 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "circle",
+        description = "A simple circle.",
+        args = {
+            radius = {
+                type = "number",
+                description = "The radius of the circle.",
+                optional = false
+            },
+            mode = {
+                type = "string",
+                description = "Can either be 'fill' or 'line'",
+                options = { "fill", "line" },
+                optional = true
+            },
+            lineWidth = {
+                type = "number",
+                description = "Only applies when the mode is 'line'.",
+                optional = true
+            }
+        },
         init = function(obj)
             local radius = obj.radius or 100
             local mode = getMode(obj.mode)
@@ -61,6 +104,14 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "image",
+        description = "An image.",
+        args = {
+            image = {
+                type = "string",
+                description = "The filename of the image.",
+                optional = false
+            }
+        },
         init = function(obj, project)
             local cached = cachedImages[obj.image]
             local name = obj.image
@@ -90,6 +141,34 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "text",
+        description = "Text.",
+        args = {
+            text = {
+                type = "string",
+                description = "The text to render.",
+                optional = false
+            },
+            size = {
+                type = "number",
+                description = "The size of the text.",
+                optional = false
+            },
+            quality = {
+                type = "number",
+                description = "The quality of the text.",
+                optional = false
+            },
+            spacing = {
+                type = "number",
+                description = "The spacing between characters.",
+                optional = true
+            },
+            font = {
+                type = "string",
+                description = "The font to use.",
+                optional = true
+            }
+        },
         init = function(obj, project)
             local x = obj.x or 100
             local y = obj.y or 100
@@ -123,6 +202,21 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "line",
+        description = "A line between two or more points.",
+        args = {
+            points = {
+                type = "table",
+                subtype = "number",
+                min = 2,
+                description = "The points of the line.",
+                optional = false
+            },
+            lineWidth = {
+                type = "number",
+                description = "The width of the line.",
+                optional = true
+            }
+        },
         init = function(obj)
             local points = obj.points
             if type(points) ~= "table" then
@@ -144,13 +238,30 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "polygon",
+        description = "A polygon.",
+        args = {
+            points = {
+                type = "table",
+                subtype = "number",
+                min = 3,
+                description = "The points of the polygon.",
+                optional = false
+            },
+            lineWidth = {
+                type = "number",
+                description = "Only applies when the mode is 'line'",
+                optional = true
+            }
+        },
         init = function(obj)
             local points = obj.points
             if type(points) ~= "table" then
                 points = { 0, 0, 5, 5, 2.5, 5 }
             end
+            local mode = getMode(obj.mode)
             return {
                 points = points,
+                mode = mode,
                 lineWidth = obj.lineWidth
             }
         end,
@@ -158,50 +269,8 @@ function basic:init(project)
             love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
             local lineWidth = love.graphics.getLineWidth()
             love.graphics.setLineWidth(tonumber(obj.lineWidth) or 1)
-            love.graphics.polygon("fill", obj.points)
+            love.graphics.polygon(onj.mode, obj.points)
             love.graphics.setLineWidth(lineWidth)
-        end
-    })
-
-    graphicsManager:registerObjectType({
-        name = "2dperlinnoise",
-        beautyName = "2D Perlin Noise",
-        init = function(obj)
-            local nx = type(obj.nx) == "number" and obj.nx or 1
-            local ny = type(obj.ny) == "number" and obj.ny or obj.nx
-            local seed = type(obj.seed) == "number" and obj.seed or 0
-            local tileSize = type(obj.tileSize) == "number" and obj.tileSize or 1
-            local width = type(obj.width) == "number" and obj.width or 100
-            local height = type(obj.height) == "number" and obj.height or 100
-            -- local seedX = type(obj.seedX) == "number" and obj.seedX or seed
-            -- local seedY = type(obj.seedY) == "number" and obj.seedY or seed
-            return {
-                width = width,
-                height = height,
-                nx = nx,
-                ny = ny,
-                seed = seed,
-                grid = {},
-                tileSize = tileSize
-            }
-        end,
-        update = function(dt, obj)
-            obj.grid = {}
-            for y = 1, obj.width do
-                obj.grid[y] = {}
-                for x = 1, obj.height do
-                    obj.grid[y][x] = love.math.noise(obj.seed + .1 * x, obj.seed + .2 * y)
-                end
-            end
-        end,
-        draw = function(obj)
-            local tileSize = obj.tileSize
-            for y = 1, #obj.grid do
-                for x = 1, #obj.grid[y] do
-                    -- love.graphics.setColor(obj.grid[y][x], obj.grid[y][x], obj.grid[y][x])
-                    love.graphics.rectangle("fill", x * tileSize, y * tileSize, tileSize - 1, tileSize - 1)
-                end
-            end
         end
     })
 end

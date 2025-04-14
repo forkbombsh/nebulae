@@ -244,7 +244,6 @@ function AudioManager:update()
 
         if sound.shouldPlay then
             local channelCount = sound.soundData:getChannelCount()
-            local bitsPerSample = sound.soundData:getBitDepth()
             local sample = sound.soundData:getSample(sound.source:tell("samples"))
             curPlayingCount = curPlayingCount + 1
             self.averageSample = self.averageSample + sample

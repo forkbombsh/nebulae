@@ -1,5 +1,5 @@
 {
-    "description": "Core plugin that provides basic graphiczs stuff like rectangles, circles, text, etc.",
+    "description": "basic plugin that provides basic audio stuff",
     "version": "1.0.0",
     "author": "Nebulae",
     "dependencies": [],
