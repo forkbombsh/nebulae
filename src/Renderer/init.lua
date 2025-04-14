@@ -64,7 +64,7 @@ Renderer = {
         }
     },
     timeTakenToRender = 0,
-    exportingThread = love.thread.newThread("nebulae/Renderer/renderThread.lua")
+    exportingThread = love.thread.newThread("src/Renderer/renderThread.lua")
 }
 
 function Renderer:start(w, h, fps, project, renderType, renderArgs, onFinish)

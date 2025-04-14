@@ -30,8 +30,18 @@ UI = require("ui")
 Json = require("lib.json")
 StateManager = require("src.stateManager")
 
-Nebulae = require("nebulae")
-Nebulae.req()
+require("src.GraphicsManager")
+require("src.Project")
+require("src.Player")
+require("src.Renderer")
+require("src.TextRender")
+require("src.ProjectPluginManager")
+require("src.AudioManager")
+require("src.KeyframeManager")
+
+Nebulae = {
+    pluginsDir = "plugins"
+}
 
 Translations = {}
 Language = "en"
@@ -275,7 +285,7 @@ end
 
 function math.average(numTable, ...)
     if type(numTable) == "number" then
-        return math.average({numTable, ...})
+        return math.average({ numTable, ... })
     elseif type(numTable) == "table" then
         local sum = 0
         local count = 0

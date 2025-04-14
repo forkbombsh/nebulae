@@ -1,4 +1,4 @@
-require("nebulae.KeyframeManager.Tween")
+require("src.KeyframeManager.Tween")
 KeyframeManager = Class("KeyframeManager")
 
 KeyframeManager.curves = {

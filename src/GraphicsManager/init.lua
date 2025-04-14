@@ -1,7 +1,7 @@
-require("nebulae.GraphicsManager.Object")
-require("nebulae.GraphicsManager.Layer")
-require("nebulae.GraphicsManager.Camera")
-require("nebulae.GraphicsManager.Effect")
+require("src.GraphicsManager.Object")
+require("src.GraphicsManager.Layer")
+require("src.GraphicsManager.Camera")
+require("src.GraphicsManager.Effect")
 GraphicsManager = Class("GraphicsManager")
 
 function GraphicsManager:initialize(width, height, fps, msaa, project)

@@ -1,4 +1,4 @@
-require("nebulae.AudioManager.Sound")
+require("src.AudioManager.Sound")
 AudioManager = Class("AudioManager")
 
 function AudioManager:initialize(project)
