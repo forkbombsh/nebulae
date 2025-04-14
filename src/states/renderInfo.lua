@@ -21,7 +21,7 @@ local function handleUI()
     })
 end
 
-function state:enter(name, gotostate, ...)
+function state:enter(name, gotostate, renderType, renderArgs, ...)
     handleUI()
     self.project = Project(name)
     self.project:load(function()
@@ -29,7 +29,7 @@ function state:enter(name, gotostate, ...)
     end)
     local args = { ... }
     Renderer:start(self.project.graphicsManager.width, self.project.graphicsManager.height,
-        self.project.graphicsManager.fps, self.project, Renderer.renderThings.libx264, {}, function()
+        self.project.graphicsManager.fps, self.project, renderType, renderArgs, function()
             StateManager.switch(gotostate, unpack(args))
         end)
 end

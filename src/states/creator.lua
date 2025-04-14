@@ -38,7 +38,7 @@ local function handleUI(w, h)
         {
             text = GetTranslation("creator", "projectTab", "renderButton"),
             func = function()
-                StateManager.switch("renderInfo", creator.project.folderName, "creator", creator.project.folderName)
+                StateManager.switch("renderSettings", "creator", creator.project.folderName, "creator", creator.project.folderName)
             end
         },
         {

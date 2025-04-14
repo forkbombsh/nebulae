@@ -42,5 +42,11 @@
         "cancelButton": "Cancel",
         "deleteProjectWarning": "Are you sure you want to delete this project? (%s)"
     },
+    "renderSettings": {
+        "title": "Render settings",
+        "encoderLabel": "Encoder:",
+        "cancelButton": "Cancel",
+        "renderButton": "Render"
+    },
     "title": "Nebulae"
 }
