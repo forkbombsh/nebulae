@@ -1,0 +1,12 @@
+g3d - https://github.com/groverburger/g3d
+flux - https://github.com/rxi/flux
+inspect - https://github.com/kikito/inspect.lua
+json - https://github.com/rxi/json.lua
+middleclass - https://github.com/kikito/middleclass
+deepcopy - https://gist.github.com/Deco/3985043
+nativefs - https://github.com/EngineerSmith/nativefs
+pprint - https://github.com/jagt/pprint.lua
+resolution solution - https://love2d.org/forums/viewtopic.php?t=92494
+nlay - https://github.com/MikuAuahDark/NPad93/blob/master/nlay.lua
+love2d - https://love2d.org
+chatgpt

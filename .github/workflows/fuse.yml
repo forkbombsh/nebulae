@@ -1,0 +1,42 @@
+name: build nebulae
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  fuse-windows:
+    runs-on: ubuntu-22.04
+    name: Build for Windows
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: download love 12.0 for Windows
+        run: curl -L -o love-win64.zip https://coolestperson.me/public/love-12.0-win64.zip
+
+      - name: unzip love
+        run: unzip love-win64.zip -d love12
+
+      - name: create love archive
+        run: zip -r game.love *.lua src ui lib config
+
+      - name: fuse Nebulae.exe
+        run: |
+          mkdir build
+          cat love12/lovec.exe game.love > build/Nebulae.exe
+
+      - name: copy dlls and folders
+        run: |
+          cp love12/*.dll build/
+          cp -r assets build/
+          cp -r plugins build/
+
+      - name: upload artifact (Windows)
+        uses: actions/upload-artifact@main
+        with:
+          name: Nebulae-Windows-x64
+          path: build/
