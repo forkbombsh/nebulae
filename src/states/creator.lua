@@ -61,7 +61,7 @@ local function handleUI(w, h)
             x = 0,
             y = 20 * (i - 1),
             width = projectMenubarDropdown.width,
-            height = 20,
+            height = 19,
             backgroundColor = creator.creatorUIButtonBackgroundColor,
             backgroundColorHover = creator.creatorUIButtonBackgroundHoveredColor,
             backgroundColorPress = creator.creatorUIButtonBackgroundPressedColor,
@@ -121,21 +121,13 @@ local function handleUI(w, h)
 
     menubar:add(projectMenubarButton)
     menubar:add(playToggleButton)
-
-    local timelinePanel = UI.addNew("panel", {
-        x = 0,
-        y = h - creator.timelineHeight,
-        width = w,
-        height = creator.timelineHeight,
-        backgroundColor = {0.15, 0.15, 0.15}
-    })
-    creator.tomelinePanel = timelinePanel
 end
 
 function creator:enter(name)
     self.project = Project(name)
     self.project:load(function() end)
     handleUI(love.graphics.getDimensions())
+    DiscordRichPresence.details = "Editing '" .. self.project.name .. "'"
 end
 
 function creator:resize(w, h)
@@ -155,7 +147,7 @@ function creator:draw()
     love.graphics.pop()
     love.graphics.setColor(1, 1, 1)
     UI.draw()
-    timelineComponent:draw()
+    -- timelineComponent:draw()
 end
 
 function creator:update(dt)

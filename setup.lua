@@ -1,5 +1,12 @@
 local utf8 = require("utf8")
 
+NativeFS = require("lib.nativefs")
+assert(NativeFS.getInfo("assets"),
+    "\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
+
+TempPath = os.tmpname()
+NativeFS.createDirectory(TempPath)
+
 local function error_printer(msg, layer)
     print((debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end
@@ -94,6 +101,8 @@ function love.errorhandler(msg)
         p = p .. "\n\nPress Ctrl+C or tap to copy this error"
     end
 
+    Cleanup()
+
     return function()
         love.event.pump()
 
@@ -131,4 +140,13 @@ end
 if love.filesystem.isFused() then
     local dir = love.filesystem.getSourceBaseDirectory()
     love.filesystem.mount(dir, "")
+end
+
+function Cleanup()
+    if love.filesystem.isFused() then
+        local dir = love.filesystem.getSourceBaseDirectory()
+        love.filesystem.unmount(dir)
+    end
+    RemoveDirectory(TempPath)
+    DiscordRPC.shutdown()
 end

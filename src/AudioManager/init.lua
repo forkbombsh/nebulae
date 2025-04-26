@@ -178,6 +178,7 @@ function AudioManager:combineSoundDatas(soundDatas, maxEndTime)
 
     local totalDuration = latestEnd - earliestStart
     local numSamples = math.ceil(totalDuration * sampleRate)
+    if numSamples < 1 then return end
     local combinedSound = love.sound.newSoundData(numSamples, sampleRate, 16, numChannels)
 
     local currentTime = 0

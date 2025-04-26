@@ -113,7 +113,7 @@ local function handleUI(w, h)
     })
     state.importProjectButton = importProjectButton
 
-    local projectList = Project:getProjectList()
+    local projectList         = Project:getProjectList()
 
     if #projectList > 0 then
         local text = GetTranslation("menu", "projectsLabel")
@@ -205,6 +205,7 @@ end
 
 function state:enter()
     handleUI(love.graphics.getDimensions())
+    DiscordRichPresence.details = "Menu"
 end
 
 function state:draw()
@@ -223,6 +224,7 @@ function state:resize(w, h)
     if StartLoadTimeStartTime then
         print("Load Time: " .. (socket.gettime() - StartLoadTimeStartTime))
         StartLoadTimeStartTime = nil
+        love.window.focus()
     end
 end
 

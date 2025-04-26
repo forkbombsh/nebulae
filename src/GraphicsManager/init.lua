@@ -67,13 +67,11 @@ function GraphicsManager:updateLayer(layer, dt)
 end
 
 function GraphicsManager:drawLayers()
-    self.camera:push()
     for _, layer in ipairs(self.layers) do
         layer.camera:push()
         self:drawLayer(layer)
         layer.camera:pop()
     end
-    self.camera:pop()
 end
 
 function GraphicsManager:canvasifyObject(object)
@@ -87,17 +85,22 @@ function GraphicsManager:canvasifyObject(object)
 end
 
 function GraphicsManager:draw()
+    self.camera:push()
     love.graphics.setColor(self.backgroundColor)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.canvas, 0, 0)
     love.graphics.setColor(r, g, b, a)
+    self.camera:pop()
 end
 
 function GraphicsManager:unload()
     for _, layer in ipairs(self.layers) do
         layer.canvas:release()
+        for _, object in ipairs(layer.objects) do
+            object:callTypeFunc("unload")
+        end
     end
     self.canvas:release()
     self.objectTypes = nil

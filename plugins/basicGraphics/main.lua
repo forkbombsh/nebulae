@@ -12,6 +12,7 @@ function basic:init(project)
     local graphicsManager = project.graphicsManager
     graphicsManager:registerObjectType({
         name = "rectangle",
+        beautyName = "Rectangle",
         description = "A simple rectangle.",
         args = {
             width = {
@@ -35,6 +36,13 @@ function basic:init(project)
                 description = "Only applies when the mode is 'line'.",
                 optional = true
             }
+        },
+        scaleable = {
+            x = true,
+            y = true,
+            width = true,
+            height = true,
+            lineWidth = true
         },
         init = function(obj)
             local width = obj.width or 100
@@ -60,6 +68,7 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "circle",
+        beautyName = "Circle",
         description = "A simple circle.",
         args = {
             radius = {
@@ -78,6 +87,12 @@ function basic:init(project)
                 description = "Only applies when the mode is 'line'.",
                 optional = true
             }
+        },
+        scaleable = {
+            x = true,
+            y = true,
+            radius = true,
+            lineWidth = true
         },
         init = function(obj)
             local radius = obj.radius or 100
@@ -104,6 +119,7 @@ function basic:init(project)
 
     graphicsManager:registerObjectType({
         name = "image",
+        beautyName = "Image",
         description = "An image.",
         args = {
             image = {
@@ -111,6 +127,10 @@ function basic:init(project)
                 description = "The filename of the image.",
                 optional = false
             }
+        },
+        scaleable = {
+            x = true,
+            y = true
         },
         init = function(obj, project)
             local cached = cachedImages[obj.image]
@@ -136,11 +156,15 @@ function basic:init(project)
         draw = function(obj)
             love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
             love.graphics.draw(obj.image, obj.x, obj.y)
+        end,
+        unload = function(obj)
+            cachedImages[obj.name] = nil
         end
     })
 
     graphicsManager:registerObjectType({
         name = "text",
+        beautyName = "Text",
         description = "Text.",
         args = {
             text = {
@@ -150,12 +174,13 @@ function basic:init(project)
             },
             size = {
                 type = "number",
-                description = "The size of the text.",
+                description = "The size of the text in pixels.",
                 optional = false
             },
             quality = {
                 type = "number",
-                description = "The quality of the text.",
+                description =
+                "The quality of the text. (e.g. 25 quality and 25 size = 100% quality, 50 quality and 25 size = 200% quality, etc.)",
                 optional = false
             },
             spacing = {
@@ -168,6 +193,12 @@ function basic:init(project)
                 description = "The font to use.",
                 optional = true
             }
+        },
+        scaleable = {
+            x = true,
+            y = true,
+            quality = true,
+            size = true
         },
         init = function(obj, project)
             local x = obj.x or 100
@@ -201,85 +232,69 @@ function basic:init(project)
     })
 
     graphicsManager:registerObjectType({
-        name = "line",
-        description = "A line between two or more points.",
+        name = "video",
+        beautyName = "Video",
+        description = "A video.",
         args = {
-            points = {
-                type = "table",
-                subtype = "number",
-                min = 2,
-                description = "The points of the line.",
+            video = {
+                type = "string",
+                description = "The filename of the video.",
                 optional = false
-            },
-            lineWidth = {
-                type = "number",
-                description = "The width of the line.",
-                optional = true
             }
         },
-        init = function(obj)
-            local points = obj.points
-            if type(points) ~= "table" then
-                points = { 0, 0, 100, 100 }
+        scaleable = {
+            x = true,
+            y = true
+        },
+        init = function(obj, project)
+            local tempPath = TempPath
+            local filename = obj.video
+            local baseName = filename:match("(.+)%..+")
+            local videoOnlyAudio = baseName .. "-aud.wav"
+            local videoNoAudio = baseName .. "-vid.mp4"
+            local audioPathFull = tempPath .. "/" .. videoOnlyAudio
+            local videoPathFull = tempPath .. "/" .. videoNoAudio
+            if not NativeFS.getInfo(audioPathFull) or not NativeFS.getInfo(videoPathFull) then
+                os.execute(("ffmpeg -i \"%s\" -vn -acodec pcm_s16le -ar 48000 -ac 2 \"%s\" -an -vcodec copy \"%s\" -y")
+                    :format(project.folder .. "/" .. filename, audioPathFull, videoPathFull))
             end
+            local audioPathFile = love.filesystem.openNativeFile(audioPathFull, "r")
+            local videoPathFile = love.filesystem.openNativeFile(videoPathFull, "r")
+            local video = love.graphics.newVideo(videoPathFile)
+            local source = video:getSource()
+            if source then
+                source:setVolume(0)
+            end
+            local videoObject = Video(obj, project, video)
+            local soundData = project.audioManager:loadSoundData(audioPathFile)
+            local sound = Sound({
+                soundData = soundData,
+                startTime = obj.startTime,
+                endTime = obj.endTime,
+                audioTime = videoObject.videoTime
+            })
+            sound.path = videoOnlyAudio
+            project.audioManager:addRTSound(sound)
+            videoObject.audio = sound
+            project.videoManager:addVideo(videoObject)
             return {
-                points = points,
-                lineWidth = obj.lineWidth
+                video = video,
+                width = video:getWidth(),
+                height = video:getHeight(),
+                videoObject = videoObject
             }
         end,
         draw = function(obj)
             love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
-            local lineWidth = love.graphics.getLineWidth()
-            love.graphics.setLineWidth(tonumber(obj.lineWidth) or 1)
-            love.graphics.line(obj.points)
-            love.graphics.setLineWidth(lineWidth)
-        end
-    })
-
-    graphicsManager:registerObjectType({
-        name = "polygon",
-        description = "A polygon.",
-        args = {
-            points = {
-                type = "table",
-                subtype = "number",
-                min = 3,
-                description = "The points of the polygon.",
-                optional = false
-            },
-            lineWidth = {
-                type = "number",
-                description = "Only applies when the mode is 'line'",
-                optional = true
-            }
-        },
-        init = function(obj)
-            local points = obj.points
-            if type(points) ~= "table" then
-                points = { 0, 0, 5, 5, 2.5, 5 }
-            end
-            local mode = getMode(obj.mode)
-            return {
-                points = points,
-                mode = mode,
-                lineWidth = obj.lineWidth
-            }
+            love.graphics.draw(obj.video, obj.x, obj.y)
         end,
-        draw = function(obj)
-            love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
-            local lineWidth = love.graphics.getLineWidth()
-            love.graphics.setLineWidth(tonumber(obj.lineWidth) or 1)
-            love.graphics.polygon(onj.mode, obj.points)
-            love.graphics.setLineWidth(lineWidth)
+        unload = function(obj)
+            obj.videoObject:unload()
         end
     })
 end
 
 function basic:onUnload()
-    for name, image in pairs(cachedImages) do
-        image:release()
-    end
-    cachedImages = {}
 end
 
 return basic

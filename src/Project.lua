@@ -37,18 +37,7 @@ end
 function Project:deleteProject(name)
     local path = "projects/" .. name
 
-    if NativeFS.getInfo(path) then
-        print("It's a directory, removing contents first...")
-        for _, file in ipairs(NativeFS.getDirectoryItems(path)) do
-            local filePath = path .. "/" .. file
-            print("Deleting file: " .. filePath)
-            NativeFS.remove(filePath)
-        end
-        -- Try to delete the empty directory now
-        NativeFS.remove(path)
-    else
-        print("Project does not exist.")
-    end
+    RemoveDirectory(path)
 end
 
 function Project:createNewProject(project)
@@ -111,6 +100,9 @@ function Project:load(onFinish)
     self.audioManager = AudioManager(self)
     local audioManager = self.audioManager
 
+    self.videoManager = VideoManager(self)
+    local videoManager = self.videoManager
+
     local msaa = projectMeta.msaa
 
     if type(msaa) ~= "number" then
@@ -155,7 +147,7 @@ function Project:load(onFinish)
         audio.soundData = soundData
         local sound = Sound(audio)
         table.insert(soundDatas, sound)
-        audioManager:addRTSound(audio)
+        audioManager:addRTSound(sound)
     end
     audioManager:loadingFinished()
 
@@ -178,11 +170,13 @@ function Project:unload()
     self.graphicsManager:unload()
     self.audioManager:unload()
     self.pluginManager:unload()
+    self.videoManager:unload()
     self.graphicsManager = nil
     self.audioManager = nil
     self.pluginManager = nil
     self.player = nil
     self.keyframeManager = nil
+    self.videoManager = nil
     Project.projects[self.name] = nil
     collectgarbage("collect")
     local newtime = socket.gettime()
@@ -194,6 +188,7 @@ function Project:update(dt)
     self.player:update(dt)
     self.keyframeManager:update(self.player.time)
     self.graphicsManager:update(dt)
+    self.videoManager:update()
     self.audioManager:update()
 end
 

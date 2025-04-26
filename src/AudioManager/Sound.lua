@@ -1,17 +1,16 @@
 Sound = Class("Sound")
 
 function Sound:initialize(obj)
-    obj.volume = obj.volume or 1
-    obj.looping = obj.looping or false
-    obj.pitch = obj.pitch or 1
-    obj.startTime = obj.startTime or 0
-    obj.endTime = obj.endTime or obj.startTime + 1
-    obj.audioTime = obj.audioTime or 0
-    obj.keyframes = obj.keyframes or {}
+    self.volume = obj.volume or 1
+    self.looping = obj.looping or false
+    self.pitch = obj.pitch or 1
+    self.startTime = obj.startTime or 0
+    self.endTime = obj.endTime or self.startTime + 1
+    self.audioTime = obj.audioTime or 0
+    self.keyframes = obj.keyframes or {}
     local soundData = obj.soundData
     if type(soundData.type) == "function" and soundData:type() == "SoundData" then
-        obj.soundData = soundData
+        self.soundData = soundData
     end
-    obj.path = obj.file
-    return obj
+    self.path = obj.file
 end

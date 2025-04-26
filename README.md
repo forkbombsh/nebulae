@@ -1,7 +1,11 @@
 # Nebulae
 Nebulae is an editing app made in love2d for fun, idk how this will go
 
-Nebulae doesn't use the vanilla build of love2d, the build it uses is avaliable here: https://github.com/MikuAuahDark/love2d/tree/nav
+Nebulae doesn't use the offical builds of love2d, the build it uses is avaliable here: https://github.com/MikuAuahDark/love2d/tree/nav
+
+Nebulae only supports love 12.0, 11.5 and lower are likely not to work.
+
+Nebulae currently only offically supports Windows (and theoretically android with NAV), I dont have a Linux or Mac machine.
 
 ## Star History
 

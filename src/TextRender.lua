@@ -45,8 +45,6 @@ end
 
 -- Draw method
 function TextRender:draw()
-    if not self.segments then return end
-
     local scaleFactor = self.size / self.quality
     love.graphics.push()
     love.graphics.translate(self.x, self.y)
@@ -56,10 +54,10 @@ function TextRender:draw()
     for i = 1, #self.text do
         local char = string.char(self.text:byte(i))
         love.graphics.print(char, self.font, xOffset, yOffset)
-        xOffset = xOffset + self.font:getWidth(char)
+        xOffset = xOffset + (self.font:getWidth(char) / scaleFactor)
         if char == "\n" then
             xOffset = 0
-            yOffset = yOffset + self.font:getHeight()
+            yOffset = yOffset + (self.font:getHeight() / scaleFactor)
         end
     end
     love.graphics.pop()

@@ -8,10 +8,6 @@ IsMobile = love.system.getOS() == "Android" or love.system.getOS() == "iOS"
 AppName = project.name
 AppVersion = project.version
 
-NativeFS = require("lib.nativefs")
-assert(NativeFS.getInfo("assets"),
-    "\n\nThe assets directory was not found. without it, Nebulae cannot function.\nPlease either reinstall Nebulae or download the assets off the github repo.")
-
 BigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 24)
 MedBigFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 20)
 MedFontArial = love.graphics.newFont("assets/fonts/arial/ARIAL.TTF", 15)
@@ -31,6 +27,7 @@ Json = require("lib.json")
 StateManager = require("src.stateManager")
 Flux = require("lib.flux")
 NLay = require("lib.nlay")
+DiscordRPC = require("lib.discordRPC")
 
 require("src.GraphicsManager")
 require("src.Project")
@@ -40,6 +37,7 @@ require("src.TextRender")
 require("src.ProjectPluginManager")
 require("src.AudioManager")
 require("src.KeyframeManager")
+require("src.VideoManager")
 
 Nebulae = {
     pluginsDir = "plugins"
@@ -67,7 +65,8 @@ function LoadTranslations()
         end
     end
 
-    love.window.setTitle(GetTranslation("title") .. " v" .. AppVersion)
+    local rendererInfo = love.graphics.getRendererInfo()
+    love.window.setTitle(GetTranslation("title") .. " v" .. AppVersion .. " - " .. rendererInfo)
 end
 
 function GetTranslation(...)
@@ -202,10 +201,6 @@ function ApplyLetterbox(targetWidth, targetHeight, x, y)
     x = x or 0
     y = y or 0
 
-    -- Adjust the target width and height based on x and y offsets
-    targetWidth = targetWidth - x
-    targetHeight = targetHeight - y
-
     -- Get the window dimensions
     local windowWidth, windowHeight = love.graphics.getDimensions()
 
@@ -304,4 +299,49 @@ end
 -- turns 1280x720 into something like 0.239487x0.243824
 function RelativeScale(w1, h1, w2, h2)
     return w2 / w1, h2 / h1
+end
+
+function ExecOutput(cmd)
+    local tmpOut = os.tmpname()
+
+    -- Cross-platform redirection (stdout + stderr) into a file
+    local fullCmd = cmd .. " > " .. tmpOut .. " 2>&1"
+    os.execute(fullCmd)
+
+    local f = io.open(tmpOut, "rb")
+    local output = f and f:read("*a") or ""
+    if f then f:close() end
+    os.remove(tmpOut)
+
+    return output
+end
+
+function GetMediaStreams(filepath)
+    local output = ExecOutput(('ffprobe -v error -show_entries stream=index,codec_type -of json "%s"'):format(filepath))
+
+    local data = Json.decode(output)
+    local result = {
+        video = {},
+        audio = {}
+    }
+
+    for _, stream in ipairs(data.streams or {}) do
+        if stream.codec_type == "video" then
+            table.insert(result.video, stream.index)
+        elseif stream.codec_type == "audio" then
+            table.insert(result.audio, stream.index)
+        end
+    end
+
+    return result
+end
+
+function RemoveDirectory(path)
+    if NativeFS.getInfo(path) then
+        for _, file in ipairs(NativeFS.getDirectoryItems(path)) do
+            local filePath = path .. "/" .. file
+            NativeFS.remove(filePath)
+        end
+        NativeFS.remove(path)
+    end
 end

@@ -1,5 +1,9 @@
-require("setup")
 require("global")
+
+print("LOVE " .. love._version)
+print(jit.version)
+print(AppName .. " v" .. AppVersion)
+print(jit.os)
 
 EnsureDirectory("projects")
 EnsureDirectory("renders")
@@ -19,7 +23,40 @@ LoadTranslations()
 
 love.keyboard.setKeyRepeat(true)
 
-StateManager.switch("menu")
+function DiscordRPC.ready(userId, username, discriminator, avatar)
+    print(string.format("Discord: ready (%s, %s, %s, %s)", userId, username, discriminator, avatar))
+end
+
+function DiscordRPC.disconnected(errorCode, message)
+    print(string.format("Discord: disconnected (%d: %s)", errorCode, message))
+end
+
+function DiscordRPC.errored(errorCode, message)
+    print(string.format("Discord: error (%d: %s)", errorCode, message))
+end
+
+function DiscordRPC.joinGame(joinSecret)
+    print(string.format("Discord: join (%s)", joinSecret))
+end
+
+function DiscordRPC.spectateGame(spectateSecret)
+    print(string.format("Discord: spectate (%s)", spectateSecret))
+end
+
+function DiscordRPC.joinRequest(userId, username, discriminator, avatar)
+    print(string.format("Discord: join request (%s, %s, %s, %s)", userId, username, discriminator, avatar))
+    DiscordRPC.respond(userId, "yes")
+end
+
+DiscordRPC.initialize("1365372990191304724", true)
+
+DiscordRichPresence = {
+    details = "Loading..."
+}
+
+nextPresenceUpdate = 0
+
+StateManager.switch("splash")
 
 if arg[2] == "debug" then
     require("lldebugger").start()
@@ -38,6 +75,12 @@ function love.update(dt)
     StateManager.passEvent("update", dt)
     Project:updateAll(dt)
     Flux.update(dt)
+    NLay.update(love.window.getSafeArea())
+    if nextPresenceUpdate < love.timer.getTime() then
+        DiscordRPC.updatePresence(DiscordRichPresence)
+        nextPresenceUpdate = love.timer.getTime() + 2.0
+    end
+    DiscordRPC.runCallbacks()
 end
 
 function love.mousepressed(x, y, b)
@@ -87,10 +130,7 @@ function love.resize(w, h)
 end
 
 function love.quit()
-    if love.filesystem.isFused() then
-        local dir = love.filesystem.getSourceBaseDirectory()
-        love.filesystem.unmount(dir)
-    end
+    Cleanup()
 end
 
 function love.run()

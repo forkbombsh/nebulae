@@ -96,6 +96,28 @@ Renderer = {
             },
             default = { 28, 4 },
             presets = { 0, 1, 2, 3, 4, 5, 6, 7, 8 }
+        },
+        av1_nvenc = {
+            name = "av1_nvenc",
+            description = "AV1 encoding with NVIDIA hardware acceleration",
+            args = "-c:v av1_nvenc -crf %d -b:v 0 -cpu-used=%s",
+            types = {
+                { name = "CRF",   type = "number" },
+                { name = "Speed", type = "number" }
+            },
+            default = { 28, 4 },
+            presets = { 0, 1, 2, 3, 4, 5, 6, 7, 8 }
+        },
+        av1_amf = {
+            name = "av1_amf",
+            description = "AV1 encoding with AMD hardware acceleration",
+            args = "-c:v av1_amf -crf %d -b:v 0 -cpu-used=%s",
+            types = {
+                { name = "CRF",   type = "number" },
+                { name = "Speed", type = "number" }
+            },
+            default = { 28, 4 },
+            presets = { 0, 1, 2, 3, 4, 5, 6, 7, 8 }
         }
     },
     timeTakenToRender = 0,
