@@ -105,7 +105,7 @@ function Project:load(onFinish)
 
     local msaa = projectMeta.msaa
 
-    if type(msaa) ~= "number" then
+    if not TypeCheck(msaa, "number") then
         msaa = 4
     end
 
@@ -127,7 +127,7 @@ function Project:load(onFinish)
         local deepCopiedObjects = table.deepcopy(pdLayer.objects)
         for _, pdObject in pairs(deepCopiedObjects) do
             local object = Object(pdObject, graphicsManager)
-            if type(pdObject.keyframes) == "table" then
+            if TypeCheck(object.keyframes, "table") then
                 self:addKeyframes(object)
             end
             layer:addObject(object)
@@ -149,9 +149,14 @@ function Project:load(onFinish)
         table.insert(soundDatas, sound)
         audioManager:addRTSound(sound)
     end
+
     audioManager:loadingFinished()
 
-    if type(onFinish) == "function" then
+    local combinedSoundData = audioManager:combineSoundDatas(audioManager.sounds, player.duration)
+    local encoded = audioManager:encodeSoundDataWav(combinedSoundData)
+    NativeFS.write("test.wav", encoded)
+
+    if TypeCheck(onFinish, "function") then
         onFinish()
     end
 

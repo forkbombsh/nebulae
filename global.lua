@@ -28,6 +28,8 @@ StateManager = require("src.stateManager")
 Flux = require("lib.flux")
 NLay = require("lib.nlay")
 DiscordRPC = require("lib.discordRPC")
+Kirigami = require("lib.kirigami")
+Lily = require("lib.lily")
 
 require("src.GraphicsManager")
 require("src.Project")
@@ -75,7 +77,7 @@ function GetTranslation(...)
 
     -- Go through the path
     for i = 1, #args do
-        if translation and type(translation) == "table" then
+        if translation and TypeCheck(translation, "table") then
             translation = translation[args[i]]
         else
             break
@@ -83,7 +85,7 @@ function GetTranslation(...)
     end
 
     -- If we found a string, return it
-    if type(translation) == "string" then
+    if TypeCheck(translation, "string") then
         return translation
     end
 
@@ -281,9 +283,9 @@ function EnsureDirectory(name)
 end
 
 function math.average(numTable, ...)
-    if type(numTable) == "number" then
+    if TypeCheck(numTable, "number") then
         return math.average({ numTable, ... })
-    elseif type(numTable) == "table" then
+    elseif TypeCheck(numTable, "table") then
         local sum = 0
         local count = 0
         for _, v in ipairs(numTable) do
@@ -316,24 +318,19 @@ function ExecOutput(cmd)
     return output
 end
 
-function GetMediaStreams(filepath)
-    local output = ExecOutput(('ffprobe -v error -show_entries stream=index,codec_type -of json "%s"'):format(filepath))
+function GetVideoInfo(filepath)
+    local output = ExecOutput(('ffprobe -v quiet -print_format json -show_format -show_streams "%s"'):format(filepath))
 
-    local data = Json.decode(output)
-    local result = {
-        video = {},
-        audio = {}
-    }
-
-    for _, stream in ipairs(data.streams or {}) do
-        if stream.codec_type == "video" then
-            table.insert(result.video, stream.index)
-        elseif stream.codec_type == "audio" then
-            table.insert(result.audio, stream.index)
-        end
+    if not output or output == "" then
+        return nil, "Empty output from FFprobe"
     end
 
-    return result
+    local ok, data = pcall(Json.decode, output)
+    if not ok then
+        return nil, "Error decoding JSON: " .. tostring(data)
+    end
+
+    return data -- no "true" anymore
 end
 
 function RemoveDirectory(path)
@@ -343,5 +340,114 @@ function RemoveDirectory(path)
             NativeFS.remove(filePath)
         end
         NativeFS.remove(path)
+    end
+end
+
+function ExecMath(code)
+    -- Create a restricted environment (sandbox)
+    local sandbox_env = {}
+    setmetatable(sandbox_env, {
+        __index = function(_, key)
+            error("Access to '" .. key .. "' is restricted!", 2)
+        end
+    })
+
+    if type(code) == "string" then
+        -- Load the code from the string
+        local func, loadErr = loadstring("return " .. code)
+        if not func then
+            return nil, "Error loading code: " .. loadErr
+        end
+
+        -- Set environment to sandbox and execute
+        setfenv(func, sandbox_env)
+        local ok, result = pcall(func)
+        return result, ok
+    else
+        error("Expected string, got " .. type(code))
+    end
+end
+
+function TypeCheck(val, check)
+    return type(val) == check
+end
+
+function MD5(str)
+    return love.data.hash("md5", str)
+end
+
+function HEX(str)
+    return love.data.encode("string", "hex", str)
+end
+
+function MD5HEX(str)
+    return HEX(MD5(str))
+end
+
+function LoadImage(path, isRendering, callback)
+    if isRendering then
+        local imageData = love.image.newImageData(path)
+        local image = love.graphics.newImage(imageData)
+        callback(image, imageData)
+    else
+        Lily.newImageData(path):onComplete(function(_, imageData)
+            local image = love.graphics.newImage(imageData)
+            callback(image, imageData)
+        end)
+    end
+end
+
+function GetVideoStream(info)
+    for i, v in ipairs(info.streams) do
+        if v.codec_type == "video" then
+            return v
+        end
+    end
+end
+
+local cached = {}
+
+for i, v in ipairs(love.filesystem.getDirectoryItems("cached")) do
+    cached[v] = true
+end
+
+function CacheVideo(path)
+    local videoInfo = GetVideoInfo(path)
+
+    local hashid = MD5HEX(path)
+
+    if cached[hashid] then
+        return
+    end
+
+    if videoInfo then
+        local videoStream = GetVideoStream(videoInfo)
+        local duration = videoInfo.format.duration
+        if videoStream then
+            local width, height = videoStream.width, videoStream.height
+            local framerate = ExecMath(videoStream.avg_frame_rate)
+            local thumbnailPath = "cached/" .. hashid .. "/thumbnail.png"
+            love.filesystem.createDirectory("cached/" .. hashid)
+            love.filesystem.write("cached/" .. hashid .. "/info.json", Json.encode(
+                {
+                    width = width,
+                    height = height,
+                    duration = duration,
+                    framerate = framerate
+                }
+            ))
+            local thumbnailTime = math.min(53, duration - 1)
+            thumbnailTime = math.max(thumbnailTime, 0) -- in case of weird tiny videos
+            thumbnailTime = thumbnailTime / 2
+            local hours = math.floor(thumbnailTime / 3600)
+            local minutes = math.floor((thumbnailTime % 3600) / 60)
+            local seconds = math.floor(thumbnailTime % 60)
+            local timestamp = string.format("%02d:%02d:%02d", hours, minutes, seconds)
+            ExecOutput(("ffmpeg -ss %s -i \"%s\" -frames:v 1 \"%s\" -y"):format(
+                timestamp,
+                path,
+                love.filesystem.getSaveDirectory() .. "/" .. thumbnailPath
+            ))
+        end
     end
 end

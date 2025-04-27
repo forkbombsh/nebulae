@@ -230,7 +230,6 @@ function basic:init(project)
             obj.textObject.spacing = obj.spacing
         end
     })
-
     graphicsManager:registerObjectType({
         name = "video",
         beautyName = "Video",

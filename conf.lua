@@ -16,6 +16,7 @@ function love.conf(t)
     t.window.msaa = 4
     t.console = true
     t.window.icon = "assets/logo/nebulae-letter-circle.png"
+    t.identity = "nebulae"
 
     -- Check if renderers are defined in the project and apply them
     if type(t.graphics) == "table" then

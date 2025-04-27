@@ -62,6 +62,8 @@ if arg[2] == "debug" then
     require("lldebugger").start()
 end
 
+CacheVideo("a/j.mp4")
+
 -- a bunch of callbacks, boring
 
 function love.draw()

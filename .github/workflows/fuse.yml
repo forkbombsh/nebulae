@@ -34,6 +34,7 @@ jobs:
           cp love12/*.dll build/
           cp -r assets build/
           cp -r plugins build/
+          cp -r *.dll build/
 
       - name: upload artifact (Windows)
         uses: actions/upload-artifact@main

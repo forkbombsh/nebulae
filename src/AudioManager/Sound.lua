@@ -9,7 +9,7 @@ function Sound:initialize(obj)
     self.audioTime = obj.audioTime or 0
     self.keyframes = obj.keyframes or {}
     local soundData = obj.soundData
-    if type(soundData.type) == "function" and soundData:type() == "SoundData" then
+    if TypeCheck(soundData.type, "function") and soundData:type() == "SoundData" then
         self.soundData = soundData
     end
     self.path = obj.file

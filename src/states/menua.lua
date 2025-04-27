@@ -15,83 +15,61 @@ local state = {
     deleteButtonBackgroundPressedColor = { 1, 0.4, 0.4 },
 }
 
-local function copyFolderNativeFS(src, dest)
-    if not love.filesystem.getInfo(dest) then
-        NativeFS.createDirectory(dest)
-    end
-    local items = love.filesystem.getDirectoryItems(src)
-    for _, item in ipairs(items) do
-        local srcPath = src .. "/" .. item
-        local destPath = dest .. "/" .. item
-        local itemInfo = love.filesystem.getInfo(srcPath)
-        if itemInfo.type == "directory" then
-            copyFolderNativeFS(srcPath, destPath)
-        else
-            local data = love.filesystem.read(srcPath)
-            NativeFS.write(destPath, data)
-        end
-    end
+local col = 0
+local z = 0
+local function panelTest(x, y, w, h)
+    col = col + 0.1
+    z = z + 1
+    UI.addNew("panel", {
+        x = x,
+        y = y,
+        width = w,
+        height = h,
+        backgroundColor = { col, col, col },
+        z = z,
+        borderRadius = 8
+    })
 end
 
+local buttons = {
+    {
+        text = "Your Projects",
+    },
+    {
+        text = "Projects other people made",
+    }
+}
+
 local function handleUI(w, h)
+    col = 0
+    z = 0
     love.graphics.setBackgroundColor(state.menuUIBackgroundColor)
     UI.removeAll()
+    local kirigami = Kirigami
+    local screen = kirigami.Region(0, 0, love.graphics.getDimensions())
+    local region = screen:padPixels(12)
+    panelTest(region:get())
+    local padtop, padbot = region:splitVertical(0.2, 0.8)
+    panelTest(padbot:get())
+    local cols, rows = 1,2
 
-    local createProjectButton = UI.addNew("button", {
-        x = 50,
-        y = 50,
-        width = w - 100,
-        height = 50,
-        backgroundColor = state.menuUIButtonBackgroundColor,
-        backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
-        backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
-        text = GetTranslation("menu", "createProjectButton"),
-        borderRadius = 8,
-        font = MedBigFontArial,
-        onRelease = function()
-            StateManager.switch("projectCreation")
-        end
-    })
-    state.createProjectButton = createProjectButton
-
-    local importProjectButton = UI.addNew("button", {
-        x = 50,
-        y = 120,
-        width = w - 100,
-        height = 50,
-        backgroundColor = state.menuUIButtonBackgroundColor,
-        backgroundColorHover = state.menuUIButtonBackgroundHoveredColor,
-        backgroundColorPress = state.menuUIButtonBackgroundPressedColor,
-        text = GetTranslation("menu", "importProjectButton"),
-        borderRadius = 8,
-        font = MedBigFontArial,
-        onRelease = function()
-            love.window.showFileDialog("openfile", function(fileTable)
-                local filepath = fileTable[1]
-                if filepath then
-                    local success = love.filesystem.mountFullPath(filepath, "tempProjectPath", "read", false)
-                    if success then
-                        local filename = filepath:match("([^/\\]+)%.%w+$")
-                        if love.filesystem.exists("tempProjectPath/metadata.json") and love.filesystem.exists("tempProjectPath/layers.json") then
-                            copyFolderNativeFS("tempProjectPath", "projects/" .. filename)
-                        end
-                        love.filesystem.unmountFullPath(filepath)
-                        handleUI(love.graphics.getDimensions())
-                    end
-                end
-            end, {
-                title = GetTranslation("importNebFileDialog", "title"),
-                attachtowindow = true,
-                acceptlabel = GetTranslation("importNebFileDialog", "acceptlabel"),
-                cancellabel = GetTranslation("importNebFileDialog", "cancellabel"),
-                filters = { [GetTranslation("importNebFileDialog", "projectFileName")] = "neb" }
-            })
-        end,
-        disabled = Lmajor < 12
-    })
-    state.importProjectButton = importProjectButton
-
-    local panelsGroup = UI.new("group")
+    local grids = padtop:padPixels(8):grid(rows, cols)
+    for _, r in ipairs(grids) do
+        -- panelTest(r:padPixels(3):get())
+        local x, y, w, h = r:padPixels(3):get()
+        local text = (buttons[_] and buttons[_] or {text="?"}).text
+        UI.addNew("button", {
+            x = x,
+            y = y,
+            width = w,
+            height = h,
+            text = text,
+            backgroundColor = { col, col, col },
+            z = z,
+            borderRadius = 8,
+            font = BigFontArial
+        })
+    end
 end
 
 function state:enter()

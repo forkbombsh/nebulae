@@ -195,6 +195,14 @@ function ui.getCurGroup()
     return UI.curGroup
 end
 
+function ui.getElements()
+    return elements
+end
+
+function ui.getElementCount()
+    return #elements
+end
+
 ui.addElementType("element", require("ui.element"))
 ui.addElementType("panel", require("ui.panel"))
 ui.addElementType("button", require("ui.button"))

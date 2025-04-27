@@ -127,7 +127,7 @@ function creator:enter(name)
     self.project = Project(name)
     self.project:load(function() end)
     handleUI(love.graphics.getDimensions())
-    DiscordRichPresence.details = "Editing '" .. self.project.name .. "'"
+    DiscordRichPresence.details = "Editing '" .. self.project.name or "???" .. "'"
 end
 
 function creator:resize(w, h)

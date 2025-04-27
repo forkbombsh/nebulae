@@ -142,6 +142,9 @@ if love.filesystem.isFused() then
     love.filesystem.mount(dir, "")
 end
 
+love.filesystem.setIdentity("nebulae")
+love.filesystem.createDirectory("cached")
+
 function Cleanup()
     if love.filesystem.isFused() then
         local dir = love.filesystem.getSourceBaseDirectory()

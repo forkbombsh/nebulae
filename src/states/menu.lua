@@ -179,28 +179,6 @@ local function handleUI(w, h)
             projectsPanel:add(deleteButton)
         end
     end
-
-    -- 🧱 DEMO GRID PANELS
-    local gridStartX = 50
-    local gridStartY = 700
-    local gridColumns = 3
-    local gridPanelWidth = 200
-    local gridPanelHeight = 100
-    local gridSpacing = 20
-    local panelCount = 6
-
-    for i = 1, panelCount do
-        local x, y = getGridPos(i, gridColumns, gridPanelWidth, gridPanelHeight, gridSpacing, gridStartX, gridStartY)
-
-        UI.addNew("panel", {
-            x = x,
-            y = y,
-            width = gridPanelWidth,
-            height = gridPanelHeight,
-            borderRadius = 8,
-            backgroundColor = state.menuUILabel2BackgroundColor
-        })
-    end
 end
 
 function state:enter()

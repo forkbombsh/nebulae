@@ -158,26 +158,25 @@ function AudioManager:encodeSoundDataWav(soundData)
     return AudioManager:encodeWAV(samples, sampleRate, channels, bitsPerSample)
 end
 
-function AudioManager:combineSoundDatas(soundDatas, maxEndTime)
+function AudioManager:combineSoundDatas(soundDatas, duration)
     if #soundDatas == 0 then return nil end
+
+    if type(duration) ~= "number" then
+        duration = 0
+        for _, v in ipairs(soundDatas) do
+            duration = duration + v.endTime - v.startTime
+        end
+    end
 
     for i, v in ipairs(soundDatas) do
         soundDatas[i].soundData = AudioManager:resampleSoundData(v.soundData, 48000 / (v.pitch or 1.0))
     end
 
-    local earliestStart = math.huge
-    local latestEnd = -math.huge
+    local earliestStart = 0
     local sampleRate = 48000
     local numChannels = soundDatas[1].soundData:getChannelCount()
-
-    -- Use startTime/endTime for determining total combined length
-    for _, v in ipairs(soundDatas) do
-        earliestStart = math.min(earliestStart, v.startTime)
-        latestEnd = math.max(latestEnd, v.endTime)
-    end
-
-    local totalDuration = latestEnd - earliestStart
-    local numSamples = math.ceil(totalDuration * sampleRate)
+    
+    local numSamples = math.ceil(duration * sampleRate)
     if numSamples < 1 then return end
     local combinedSound = love.sound.newSoundData(numSamples, sampleRate, 16, numChannels)
 
@@ -218,7 +217,7 @@ function AudioManager:combineSoundDatas(soundDatas, maxEndTime)
                 currentTime = sampleIndex / sampleRate
 
                 -- Check if maxEndTime is specified and reached
-                if maxEndTime and currentTime >= maxEndTime then
+                if duration and currentTime >= duration then
                     return combinedSound
                 end
             end
