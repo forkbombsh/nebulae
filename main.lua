@@ -9,6 +9,9 @@ EnsureDirectory("projects")
 EnsureDirectory("renders")
 EnsureDirectory("plugins")
 
+local cacheThread = love.thread.getChannel("cache")
+local logsThread = love.thread.getChannel("logs")
+
 if IsMobile then
     love.window.setMode(1, 2, { fullscreen = false })
 end
@@ -61,15 +64,18 @@ StateManager.switch("splash")
 if arg[2] == "debug" then
     require("lldebugger").start()
 end
-
-CacheVideo("a/j.mp4")
-
 -- a bunch of callbacks, boring
 
 function love.draw()
     StateManager.passEvent("draw")
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf(tostring(love.timer.getFPS()) .. " FPS", 0, 0, love.graphics.getWidth(), "right")
+    for i, v in ipairs(GlobalLogs) do
+        love.graphics.setColor(1, 1, 1, v.a)
+        love.graphics.printf(v.text, 0,
+            (love.graphics.getFont():getHeight() * #GlobalLogs) - (love.graphics.getFont():getHeight() * i),
+            love.graphics.getWidth(), "left")
+    end
 end
 
 function love.update(dt)
@@ -83,6 +89,23 @@ function love.update(dt)
         nextPresenceUpdate = love.timer.getTime() + 2.0
     end
     DiscordRPC.runCallbacks()
+    local videoCache = cacheThread:pop()
+    if videoCache then
+        AddCache(videoCache)
+    end
+    local log = logsThread:pop()
+    if log then
+        Logs.log(TypeCheck(log, "string") and log or table.concat(log, " "))
+    end
+    for i, v in ipairs(GlobalLogs) do
+        if not v.a then
+            v.a = 4
+        end
+        v.a = v.a - dt
+        if v.a <= 0 then
+            table.remove(GlobalLogs, i)
+        end
+    end
 end
 
 function love.mousepressed(x, y, b)

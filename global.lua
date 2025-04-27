@@ -1,6 +1,8 @@
 local socket = require("socket")
 local project = require("config.project")
 
+GlobalLogs = {}
+
 Lmajor, Lminor, Lrevision, Lcodename = love.getVersion()
 
 IsMobile = love.system.getOS() == "Android" or love.system.getOS() == "iOS"
@@ -30,6 +32,8 @@ NLay = require("lib.nlay")
 DiscordRPC = require("lib.discordRPC")
 Kirigami = require("lib.kirigami")
 Lily = require("lib.lily")
+Logs = require("src.logs")
+Logs.config(GlobalLogs)
 
 require("src.GraphicsManager")
 require("src.Project")
@@ -407,47 +411,23 @@ end
 
 local cached = {}
 
+-- Pre-load the cached files into the local cache
 for i, v in ipairs(love.filesystem.getDirectoryItems("cached")) do
     cached[v] = true
 end
 
+-- Add to the channel for the thread to process
 function CacheVideo(path)
-    local videoInfo = GetVideoInfo(path)
+    love.thread.newThread("src/videoCache.lua"):start(path, cached, GlobalLogs)
+end
 
-    local hashid = MD5HEX(path)
+function AddCache(hashid)
+    cached[hashid] = true
+end
 
-    if cached[hashid] then
-        return
-    end
+local oprint = print
 
-    if videoInfo then
-        local videoStream = GetVideoStream(videoInfo)
-        local duration = videoInfo.format.duration
-        if videoStream then
-            local width, height = videoStream.width, videoStream.height
-            local framerate = ExecMath(videoStream.avg_frame_rate)
-            local thumbnailPath = "cached/" .. hashid .. "/thumbnail.png"
-            love.filesystem.createDirectory("cached/" .. hashid)
-            love.filesystem.write("cached/" .. hashid .. "/info.json", Json.encode(
-                {
-                    width = width,
-                    height = height,
-                    duration = duration,
-                    framerate = framerate
-                }
-            ))
-            local thumbnailTime = math.min(53, duration - 1)
-            thumbnailTime = math.max(thumbnailTime, 0) -- in case of weird tiny videos
-            thumbnailTime = thumbnailTime / 2
-            local hours = math.floor(thumbnailTime / 3600)
-            local minutes = math.floor((thumbnailTime % 3600) / 60)
-            local seconds = math.floor(thumbnailTime % 60)
-            local timestamp = string.format("%02d:%02d:%02d", hours, minutes, seconds)
-            ExecOutput(("ffmpeg -ss %s -i \"%s\" -frames:v 1 \"%s\" -y"):format(
-                timestamp,
-                path,
-                love.filesystem.getSaveDirectory() .. "/" .. thumbnailPath
-            ))
-        end
-    end
+function print(...)
+    oprint(...)
+    Logs.log(table.concat({ ... }, " "))
 end
