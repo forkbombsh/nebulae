@@ -152,10 +152,6 @@ function Project:load(onFinish)
 
     audioManager:loadingFinished()
 
-    local combinedSoundData = audioManager:combineSoundDatas(audioManager.sounds, player.duration)
-    local encoded = audioManager:encodeSoundDataWav(combinedSoundData)
-    NativeFS.write("test.wav", encoded)
-
     if TypeCheck(onFinish, "function") then
         onFinish()
     end
