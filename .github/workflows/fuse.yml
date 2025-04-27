@@ -27,7 +27,7 @@ jobs:
       - name: fuse Nebulae.exe
         run: |
           mkdir build
-          cat love12/lovec.exe game.love > build/Nebulae.exe
+          cat love12/love.exe game.love > build/Nebulae.exe
 
       - name: copy dlls and folders
         run: |
