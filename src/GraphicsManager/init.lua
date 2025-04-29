@@ -1,5 +1,5 @@
 require("src.GraphicsManager.Object")
-require("src.GraphicsManager.Layer")
+require("src.GraphicsManager.Container")
 require("src.GraphicsManager.Camera")
 require("src.GraphicsManager.Effect")
 GraphicsManager = Class("GraphicsManager")

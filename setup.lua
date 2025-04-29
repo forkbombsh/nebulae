@@ -101,6 +101,42 @@ function love.errorhandler(msg)
         p = p .. "\n\nPress Ctrl+C or tap to copy this error"
     end
 
+    local function getSurroundingLines(traceback, context)
+        local file, line = traceback:match('\n%s*([^:\n]+):(%d+):')
+        line = tonumber(line)
+        if not file or not line then return nil end
+
+        local ok, source = pcall(function()
+            local f = io.open(file, "r")
+            if not f then return nil end
+            local lines = {}
+            for l in f:lines() do
+                table.insert(lines, l)
+            end
+            f:close()
+            return lines
+        end)
+
+        if not ok or not source then return nil end
+
+        local start_line = math.max(1, line - context)
+        local end_line = math.min(#source, line + context)
+
+        local snippet = {}
+        for i = start_line, end_line do
+            local prefix = (i == line) and ">> " or "   "
+            table.insert(snippet, string.format("%s%4d | %s", prefix, i, source[i]))
+        end
+
+        return table.concat(snippet, "\n")
+    end
+
+    local snippet = getSurroundingLines(trace, 3)
+    print(snippet)
+    if snippet then
+        p = p .. "\n\nCode snippet:\n" .. snippet
+    end
+
     Cleanup()
 
     return function()

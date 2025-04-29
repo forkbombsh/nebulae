@@ -4,6 +4,37 @@ _G.StartLoadTimeStartTime = socket.gettime()
 local project = require("config.project")
 require("setup")
 
+local oldreq = require
+local cached = {}
+local stack = {}
+
+function require(path)
+    local oldTime = socket.gettime()
+    table.insert(stack, path)
+    
+    local function indent()
+        return string.rep("|", #stack)
+    end
+    
+    print("!" .. " loading " .. path)
+
+    local function finish()
+        local newTime = socket.gettime()
+        print(indent() .. " required " .. path .. " in " .. (newTime - oldTime) .. " seconds")
+        table.remove(stack)
+    end
+
+    if cached[path] then
+        finish()
+        return cached[path]
+    else
+        local result = oldreq(path)
+        cached[path] = result
+        finish()
+        return result
+    end
+end
+
 function love.conf(t)
     -- Set window properties
     t.window.width = 1280

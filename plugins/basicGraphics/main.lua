@@ -230,6 +230,7 @@ function basic:init(project)
             obj.textObject.spacing = obj.spacing
         end
     })
+
     graphicsManager:registerObjectType({
         name = "video",
         beautyName = "Video",
@@ -289,6 +290,33 @@ function basic:init(project)
         end,
         unload = function(obj)
             obj.videoObject:unload()
+        end
+    })
+
+    graphicsManager:registerObjectType({
+        name = "container",
+        beautyName = "Container",
+        description = "A container.",
+        args = {
+            objects = {
+                type = "table",
+                description = "The objects in the container.",
+                optional = false
+            }
+        },
+        scaleable = {
+            x = true,
+            y = true,
+            width = true,
+            height = true,
+            msaa = true,
+            fps = true,
+            camera = false,
+            objects = false
+        },
+        init = function(obj, project)
+            local container = Container(obj, project)
+            return container
         end
     })
 end

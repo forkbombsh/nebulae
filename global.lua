@@ -424,10 +424,3 @@ end
 function AddCache(hashid)
     cached[hashid] = true
 end
-
-local oprint = print
-
-function print(...)
-    oprint(...)
-    Logs.log(table.concat({ ... }, " "))
-end
