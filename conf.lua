@@ -6,22 +6,22 @@ require("setup")
 
 local oldreq = require
 local cached = {}
-local stack = {}
+local stack = 0
 
 function require(path)
     local oldTime = socket.gettime()
-    table.insert(stack, path)
-    
+    stack = stack + 1
+
     local function indent()
-        return string.rep("|", #stack)
+        return string.rep("|", stack)
     end
-    
-    print("!" .. " loading " .. path)
+
+    print("! loading " .. path)
 
     local function finish()
         local newTime = socket.gettime()
         print(indent() .. " required " .. path .. " in " .. (newTime - oldTime) .. " seconds")
-        table.remove(stack)
+        stack = stack - 1
     end
 
     if cached[path] then
@@ -41,7 +41,7 @@ function love.conf(t)
     t.window.height = 720
     t.window.fullscreen = false
     t.window.resizable = true
-    t.window.vsync = true
+    t.window.vsync = false
     t.window.title = project.name .. " v" .. project.version
     t.audio.mixwithsystem = false
     t.window.msaa = 4

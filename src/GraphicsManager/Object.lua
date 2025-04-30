@@ -5,6 +5,7 @@ function Object:initialize(obj, project)
         obj = {}
     end
     local graphicsManager = project.graphicsManager
+    -- self.graphicsManager = graphicsManager
     self.x = TypeCheck(obj.x, "number") and obj.x or 0
     self.y = TypeCheck(obj.y, "number") and obj.y or 0
     self.z = TypeCheck(obj.y, "number") and obj.z or 0
@@ -32,6 +33,7 @@ function Object:callTypeFunc(name, ...)
 end
 
 function Object:draw()
+    -- self.graphicsManager.currentObjectsOnScreen = self.graphicsManager.currentObjectsOnScreen + 1
     self:callTypeFunc("draw")
 end
 

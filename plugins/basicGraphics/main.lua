@@ -247,40 +247,12 @@ function basic:init(project)
             y = true
         },
         init = function(obj, project)
-            local tempPath = TempPath
-            local filename = obj.video
-            local baseName = filename:match("(.+)%..+")
-            local videoOnlyAudio = baseName .. "-aud.wav"
-            local videoNoAudio = baseName .. "-vid.mp4"
-            local audioPathFull = tempPath .. "/" .. videoOnlyAudio
-            local videoPathFull = tempPath .. "/" .. videoNoAudio
-            if not NativeFS.getInfo(audioPathFull) or not NativeFS.getInfo(videoPathFull) then
-                os.execute(("ffmpeg -i \"%s\" -vn -acodec pcm_s16le -ar 48000 -ac 2 \"%s\" -an -vcodec copy \"%s\" -y")
-                    :format(project.folder .. "/" .. filename, audioPathFull, videoPathFull))
-            end
-            local audioPathFile = love.filesystem.openNativeFile(audioPathFull, "r")
-            local videoPathFile = love.filesystem.openNativeFile(videoPathFull, "r")
-            local video = love.graphics.newVideo(videoPathFile)
-            local source = video:getSource()
-            if source then
-                source:setVolume(0)
-            end
-            local videoObject = Video(obj, project, video)
-            local soundData = project.audioManager:loadSoundData(audioPathFile)
-            local sound = Sound({
-                soundData = soundData,
-                startTime = obj.startTime,
-                endTime = obj.endTime,
-                audioTime = videoObject.videoTime
-            })
-            sound.path = videoOnlyAudio
-            project.audioManager:addRTSound(sound)
-            videoObject.audio = sound
+            local videoObject = Video(obj, project)
             project.videoManager:addVideo(videoObject)
             return {
-                video = video,
-                width = video:getWidth(),
-                height = video:getHeight(),
+                video = videoObject.video,
+                width = videoObject.video:getWidth(),
+                height = videoObject.video:getHeight(),
                 videoObject = videoObject
             }
         end,
@@ -316,7 +288,15 @@ function basic:init(project)
         },
         init = function(obj, project)
             local container = Container(obj, project)
+            container:addObjects()
+            container:sort()
             return container
+        end,
+        draw = function(obj)
+            love.graphics.setColor(obj.color or { 1, 1, 1, 1 })
+            love.graphics.draw(obj.canvas, obj.x, obj.y)
+        end,
+        update = function(obj)
         end
     })
 end

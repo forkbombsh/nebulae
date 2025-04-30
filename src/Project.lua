@@ -123,19 +123,13 @@ function Project:load(onFinish)
     local pdLayers = self:fetchProjectLayers(folderName)
 
     for layerIndex, pdLayer in ipairs(pdLayers) do
+        StartProfile("Loading layer")
         local layer = Container(pdLayers[layerIndex], self)
-        -- local deepCopiedObjects = table.deepcopy(pdLayer.objects)
-        -- for _, pdObject in pairs(deepCopiedObjects) do
-        --     local object = Object(pdObject, graphicsManager)
-        --     if TypeCheck(object.keyframes, "table") then
-        --         self:addKeyframes(object)
-        --     end
-        --     layer:addObject(object)
-        -- end
         layer:addObjects()
         print("Sorting layer...")
         layer:sort()
         graphicsManager:addLayer(layer)
+        EndProfile("Loading layer")
     end
 
     print("Loading audio...")

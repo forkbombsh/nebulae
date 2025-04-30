@@ -22,6 +22,7 @@ function GraphicsManager:initialize(width, height, fps, msaa, project)
     self.objectTypes = {}
     self.effectTypes = {}
     self.backgroundColor = { 0, 0, 0 }
+    self.currentObjectsOnScreen = 0
 end
 
 function GraphicsManager:addLayer(layer)
@@ -45,32 +46,24 @@ function GraphicsManager:registerEffectType(args)
     end
 end
 
-function GraphicsManager:drawLayer(layer)
-    local player = self.player
-    love.graphics.setColor(1, 1, 1, 1)
-    for _, object in ipairs(layer.sortedObjects) do
-        if type(object) == "table" and type(object.type) == "table" and type(object.type.draw) == "function" then
-            if player.time >= object.startTime and player.time < object.endTime then
-                local r, g, b, a = love.graphics.getColor()
-                love.graphics.setColor(1, 1, 1, 1)
-                object:draw()
-                love.graphics.setColor(r, g, b, a)
-            end
-        end
-    end
-end
-
 function GraphicsManager:updateLayer(layer, dt)
     for _, object in ipairs(layer.sortedObjects) do
         object:update(dt)
     end
+    layer:drawToCanvas()
 end
 
 function GraphicsManager:drawLayers()
     for _, layer in ipairs(self.layers) do
         layer.camera:push()
-        self:drawLayer(layer)
+        layer:draw()
         layer.camera:pop()
+    end
+end
+
+function GraphicsManager:updateLayers(dt)
+    for _, layer in ipairs(self.layers) do
+        self:updateLayer(layer, dt)
     end
 end
 
@@ -93,6 +86,11 @@ function GraphicsManager:draw()
     love.graphics.draw(self.canvas, 0, 0)
     love.graphics.setColor(r, g, b, a)
     self.camera:pop()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print(
+        ("FPS: %s\nCurrent objects on screen: %s\nIRL Render time: %s"):format(math.floor(1 / love.timer.getDelta()),
+            self.currentObjectsOnScreen, Renderer.timeTakenToRender),
+        10, 10)
 end
 
 function GraphicsManager:unload()
@@ -109,9 +107,8 @@ function GraphicsManager:unload()
 end
 
 function GraphicsManager:update(dt)
-    for _, layer in ipairs(self.layers) do
-        self:updateLayer(layer, dt)
-    end
+    self.currentObjectsOnScreen = 0
+    self:updateLayers(dt)
     love.graphics.setCanvas(self.canvas)
     love.graphics.clear()
     self:drawLayers()
