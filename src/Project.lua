@@ -123,13 +123,11 @@ function Project:load(onFinish)
     local pdLayers = self:fetchProjectLayers(folderName)
 
     for layerIndex, pdLayer in ipairs(pdLayers) do
-        StartProfile("Loading layer")
         local layer = Container(pdLayers[layerIndex], self)
         layer:addObjects()
         print("Sorting layer...")
         layer:sort()
         graphicsManager:addLayer(layer)
-        EndProfile("Loading layer")
     end
 
     print("Loading audio...")
@@ -153,6 +151,8 @@ function Project:load(onFinish)
 
     local newtime = socket.gettime()
     print("Project loaded in " .. (newtime - oldtime) .. " seconds.")
+
+    -- pprint(self)
 end
 
 function Project:checkForErrors()

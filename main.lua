@@ -59,7 +59,7 @@ DiscordRichPresence = {
 
 nextPresenceUpdate = 0
 
-StateManager.switch("splash")
+StateManager.switch("videoDecodeTest")
 
 if arg[2] == "debug" then
     require("lldebugger").start()
